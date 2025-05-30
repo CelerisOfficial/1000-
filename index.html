@@ -33,6 +33,19 @@
     #userCount {
       color: green;
     }
+    #successMessage, #writeButton {
+      margin-top: 20px;
+      display: none;
+    }
+    #writeButton {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
@@ -52,6 +65,10 @@
     data-shape="rectangular"
     data-logo_alignment="left">
   </div>
+
+  <!-- Başarı Mesajı ve Buton -->
+  <div id="successMessage">✅ Kayıt başarılı!</div>
+  <button id="writeButton">Yaz</button>
 
   <!-- Kullanıcı Tablosu -->
   <h2>Kayıt Olanlar <span id="userCount">0/1000</span></h2>
@@ -89,7 +106,6 @@
     async function fetchUsersFromSheet() {
       const res = await fetch(API_URL);
       const users = await res.json();
-      console.log("Kayıtlı kullanıcılar:", users);
       updateUsersTable(users);
     }
 
@@ -118,7 +134,15 @@
         email: userInfo.email
       };
 
-      saveUserToSheet(user).then(fetchUsersFromSheet);
+      saveUserToSheet(user).then(() => {
+        fetchUsersFromSheet();
+        showSuccessUI(); // Giriş sonrası butonu ve mesajı göster
+      });
+    }
+
+    function showSuccessUI() {
+      document.getElementById("successMessage").style.display = "block";
+      document.getElementById("writeButton").style.display = "inline-block";
     }
 
     window.onload = () => {
