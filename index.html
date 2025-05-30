@@ -1,37 +1,89 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kayıt Sistemi</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Google Giriş + Kayıt</title>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<style>
+  body { font-family: Arial; padding: 20px; }
+  #user-info { margin-top: 20px; }
+  #registerDiv { display:none; margin-top: 20px; }
+  input { padding: 5px; }
+</style>
+
 </head>
 <body>
-  <div class="topbar">
-    <p>Kayıt Sayısı: <span id="counter">0</span> / 1000</p>
-  </div>
 
-  <div class="container">
-    <h1>Kayıt Ol</h1>
-    <form id="registerForm">
-      <input type="text" id="nameInput" placeholder="Adını gir..." required />
-      <button type="submit">Kayıt Ol</button>
-    </form>
+<h2>Google ile Giriş Yap</h2>
+<div id="g_id_onload"
+     data-client_id="YOUR_GOOGLE_CLIENT_ID"
+     data-callback="handleCredentialResponse">
+</div>
 
-    <h2>Kayıtlı Kullanıcılar</h2>
-    <table id="userTable">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>İsim</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Kayıtlar buraya eklenecek -->
-      </tbody>
-    </table>
-  </div>
+<div class="g_id_signin" data-type="standard"></div>
 
-  <script src="script.js"></script>
+<div id="user-info"></div>
+
+<div id="registerDiv">
+  <h3>Adını Yaz</h3>
+  <input type="text" id="nameInput" placeholder="Adın..." />
+  <button id="saveNameBtn">Kaydet</button>
+  <p id="message" style="color:red;"></p>
+</div>
+
+<script>
+// Giriş yapan kullanıcının bilgisi saklanacak
+let user = null;
+let hasRegistered = false;
+
+function handleCredentialResponse(response) {
+  // Google'dan JWT token geliyor ama biz basit demo yapıyoruz
+  // decodeJwt kısmı token'dan isim alma fonksiyonu
+  const data = parseJwt(response.credential);
+  user = data;
+
+  document.getElementById('user-info').innerHTML = `
+    <p><b>Hoşgeldin, ${user.name}</b> (${user.email})</p>
+  `;
+
+  // Daha önce kayıt yaptı mı?
+  if (localStorage.getItem('registered_'+user.sub)) {
+    hasRegistered = true;
+    document.getElementById('registerDiv').style.display = 'none';
+    document.getElementById('message').textContent = 'Zaten kayıt oldun!';
+  } else {
+    document.getElementById('registerDiv').style.display = 'block';
+  }
+}
+
+document.getElementById('saveNameBtn').addEventListener('click', () => {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) {
+    document.getElementById('message').textContent = 'Lütfen adını gir!';
+    return;
+  }
+  // Kayıt yapıldı diye localStorage kaydet
+  localStorage.setItem('registered_' + user.sub, name);
+  hasRegistered = true;
+  document.getElementById('message').style.color = 'green';
+  document.getElementById('message').textContent = 'Kayıt başarılı!';
+  document.getElementById('registerDiv').style.display = 'none';
+});
+
+// JWT token'ı decode et
+function parseJwt(token) {
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+
+  return JSON.parse(jsonPayload);
+}
+</script>
+
 </body>
 </html>
