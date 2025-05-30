@@ -1,153 +1,73 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>1000 Kayıt Sitesi</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 40px;
-      background: #f2f2f2;
-    }
-    h2 {
-      margin-top: 30px;
-    }
-    table {
-      margin: auto;
-      border-collapse: collapse;
-      width: 80%;
-      max-width: 800px;
-      background: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 12px;
-      border: 1px solid #ccc;
-    }
-    th {
-      background: #eee;
-    }
-    #userCount {
-      color: green;
-    }
-    #successMessage, #writeButton {
-      margin-top: 20px;
-      display: none;
-    }
-    #writeButton {
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-  </style>
-</head>
-<body>
+const API_URL = "https://script.google.com/macros/s/AKfycbzbpiIWax0ccfefIX8G42HTKqvS1UNKL1TGfEB91mMimyBlOvarFVlhnIrL4Web9vxsvw/exec";
 
-  <!-- Google Giriş -->
-  <div id="g_id_onload"
-    data-client_id="537474382538-bp4g5n0ute985jq2qs2lbestg82cgid5.apps.googleusercontent.com"
-    data-callback="handleCredentialResponse"
-    data-auto_prompt="true">
-  </div>
+// Kullanıcıyı Google'dan aldıktan sonra kaydet
+async function saveUserToSheet(user) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      sub: user.sub,
+      name: user.name,
+      email: user.email
+    })
+  });
 
-  <div class="g_id_signin"
-    data-type="standard"
-    data-size="large"
-    data-theme="outline"
-    data-text="sign_in_with"
-    data-shape="rectangular"
-    data-logo_alignment="left">
-  </div>
+  const result = await res.json();
+  console.log("Kayıt sonucu:", result);
+  if (result.success) {
+    showSuccessUI();
+  }
+}
 
-  <!-- Başarı Mesajı ve Buton -->
-  <div id="successMessage">✅ Kayıt başarılı!</div>
-  <button id="writeButton">Yaz</button>
+// Tüm kullanıcıları çek
+async function fetchUsersFromSheet() {
+  const res = await fetch(API_URL);
+  const users = await res.json();
+  console.log("Kayıtlı kullanıcılar:", users);
+  updateUsersTable(users);
+}
 
-  <!-- Kullanıcı Tablosu -->
-  <h2>Kayıt Olanlar <span id="userCount">0/1000</span></h2>
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>İsim</th>
-        <th>Email</th>
-      </tr>
-    </thead>
-    <tbody id="userTable"></tbody>
-  </table>
+// Tabloya kullanıcıları yaz
+function updateUsersTable(users) {
+  const table = document.getElementById("userTable");
+  table.innerHTML = ""; // temizle
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxF7MhqAVfPyuYaDKWqfQ9Y4Dhf3WMJawLrMtU72E1RGl-ekgP1XpSXJ50Unj_9OSObgw/exec";
+  users.forEach((user, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${user.name}</td>
+      <td>${user.email}</td>
+    `;
+    table.appendChild(row);
+  });
 
-    async function saveUserToSheet(user) {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          sub: user.sub,
-          name: user.name,
-          email: user.email
-        })
-      });
+  // Barı güncelle
+  document.getElementById("userCount").innerText = `${users.length}/1000`;
+}
 
-      const result = await res.json();
-      console.log("Kayıt sonucu:", result);
-    }
+function handleCredentialResponse(response) {
+  const userInfo = jwt_decode(response.credential);
+  const user = {
+    sub: userInfo.sub,
+    name: userInfo.name,
+    email: userInfo.email
+  };
 
-    async function fetchUsersFromSheet() {
-      const res = await fetch(API_URL);
-      const users = await res.json();
-      updateUsersTable(users);
-    }
+  saveUserToSheet(user).then(fetchUsersFromSheet);
+}
 
-    function updateUsersTable(users) {
-      const table = document.getElementById("userTable");
-      table.innerHTML = "";
+function showSuccessUI() {
+  const message = document.createElement("div");
+  message.innerText = "✅ Kayıt başarılı!";
+  message.style.marginTop = "20px";
+  message.style.fontSize = "18px";
+  message.style.color = "green";
+  document.body.insertBefore(message, document.getElementById("userTable").parentNode);
+}
 
-      users.forEach((user, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-        `;
-        table.appendChild(row);
-      });
-
-      document.getElementById("userCount").innerText = `${users.length}/1000`;
-    }
-
-    function handleCredentialResponse(response) {
-      const userInfo = jwt_decode(response.credential);
-      const user = {
-        sub: userInfo.sub,
-        name: userInfo.name,
-        email: userInfo.email
-      };
-
-      saveUserToSheet(user).then(() => {
-        fetchUsersFromSheet();
-        showSuccessUI(); // Giriş sonrası butonu ve mesajı göster
-      });
-    }
-
-    function showSuccessUI() {
-      document.getElementById("successMessage").style.display = "block";
-      document.getElementById("writeButton").style.display = "inline-block";
-    }
-
-    window.onload = () => {
-      fetchUsersFromSheet();
-    };
-  </script>
-</body>
-</html>
+window.onload = () => {
+  fetchUsersFromSheet();
+};
