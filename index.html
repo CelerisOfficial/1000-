@@ -1,175 +1,129 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Google Giriş + Kayıt Tablosu</title>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
-<style>
-  body { font-family: Arial; padding: 20px; }
-  #user-info { margin-top: 20px; }
-  #registerDiv { display:none; margin-top: 20px; }
-  input { padding: 5px; }
-  table { border-collapse: collapse; margin-top: 20px; width: 100%; max-width: 400px; }
-  th, td { border: 1px solid #999; padding: 8px; text-align: left; }
-  #countBar { margin-top: 10px; font-weight: bold; }
-</style>
-
+  <meta charset="UTF-8">
+  <title>1000 Kayıt Sitesi</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 40px;
+      background: #f2f2f2;
+    }
+    h2 {
+      margin-top: 30px;
+    }
+    table {
+      margin: auto;
+      border-collapse: collapse;
+      width: 80%;
+      max-width: 800px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+    }
+    th {
+      background: #eee;
+    }
+    #userCount {
+      color: green;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Google ile Giriş Yap</h2>
-<div id="g_id_onload"
-     data-client_id="537474382538-bp4g5n0ute985jq2qs2lbestg82cgid5.apps.googleusercontent.com"
-     data-callback="handleCredentialResponse">
-</div>
+  <!-- Google Giriş -->
+  <div id="g_id_onload"
+    data-client_id="537474382538-bp4g5n0ute985jq2qs2lbestg82cgid5.apps.googleusercontent.com"
+    data-callback="handleCredentialResponse"
+    data-auto_prompt="true">
+  </div>
 
-<div class="g_id_signin" data-type="standard"></div>
+  <div class="g_id_signin"
+    data-type="standard"
+    data-size="large"
+    data-theme="outline"
+    data-text="sign_in_with"
+    data-shape="rectangular"
+    data-logo_alignment="left">
+  </div>
 
-<div id="user-info"></div>
+  <!-- Kullanıcı Tablosu -->
+  <h2>Kayıt Olanlar <span id="userCount">0/1000</span></h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>İsim</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody id="userTable"></tbody>
+  </table>
 
-<div id="registerDiv">
-  <h3>Adını Yaz</h3>
-  <input type="text" id="nameInput" placeholder="Adın..." />
-  <button id="saveNameBtn">Kaydet</button>
-  <p id="message" style="color:red;"></p>
-</div>
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxF7MhqAVfPyuYaDKWqfQ9Y4Dhf3WMJawLrMtU72E1RGl-ekgP1XpSXJ50Unj_9OSObgw/exec";
 
-<h3>Kayıtlı Kullanıcılar</h3>
-<div id="countBar">0 / 1000 kişi kayıt oldu</div>
-<table id="usersTable">
-  <thead>
-    <tr><th>Ad</th><th>Email</th></tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
+    async function saveUserToSheet(user) {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          sub: user.sub,
+          name: user.name,
+          email: user.email
+        })
+      });
 
-<script>
-let user = null;
+      const result = await res.json();
+      console.log("Kayıt sonucu:", result);
+    }
 
-// localStorage'da kayıtlar usersList olarak JSON dizisi tutulacak
-// format: [{sub, name, email}]
+    async function fetchUsersFromSheet() {
+      const res = await fetch(API_URL);
+      const users = await res.json();
+      console.log("Kayıtlı kullanıcılar:", users);
+      updateUsersTable(users);
+    }
 
-// Helper: Kayıtlı kullanıcıları getir
-function getUsersList() {
-  const data = localStorage.getItem('usersList');
-  return data ? JSON.parse(data) : [];
-}
+    function updateUsersTable(users) {
+      const table = document.getElementById("userTable");
+      table.innerHTML = "";
 
-// Helper: Kayıtlı kullanıcıları kaydet
-function setUsersList(list) {
-  localStorage.setItem('usersList', JSON.stringify(list));
-}
+      users.forEach((user, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+        `;
+        table.appendChild(row);
+      });
 
-// Kullanıcı zaten kayıtlı mı kontrol et
-function isUserRegistered(sub) {
-  return getUsersList().some(u => u.sub === sub);
-}
+      document.getElementById("userCount").innerText = `${users.length}/1000`;
+    }
 
-// Kayıtlı kullanıcı bilgilerini getir
-function getUserInfo(sub) {
-  return getUsersList().find(u => u.sub === sub);
-}
+    function handleCredentialResponse(response) {
+      const userInfo = jwt_decode(response.credential);
+      const user = {
+        sub: userInfo.sub,
+        name: userInfo.name,
+        email: userInfo.email
+      };
 
-// Tabloyu güncelle
-function updateUsersTable() {
-  const tbody = document.querySelector('#usersTable tbody');
-  tbody.innerHTML = ''; // temizle
-  const users = getUsersList();
-  users.forEach(u => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${u.name}</td><td>${u.email}</td>`;
-    tbody.appendChild(tr);
-  });
-  // Sayaç güncelle
-  document.getElementById('countBar').textContent = `${users.length} / 1000 kişi kayıt oldu`;
-}
+      saveUserToSheet(user).then(fetchUsersFromSheet);
+    }
 
-// Google'dan gelen credential'ı çöz
-function parseJwt(token) {
-  var base64Url = token.split('.')[1];
-  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-  }).join(''));
-  return JSON.parse(jsonPayload);
-}
-
-// Google giriş yapınca
-function handleCredentialResponse(response) {
-  const data = parseJwt(response.credential);
-  user = data;
-
-  document.getElementById('user-info').innerHTML = `
-    <p><b>Hoşgeldin, ${user.name}</b> (${user.email})</p>
-  `;
-
-  if (isUserRegistered(user.sub)) {
-    // Kayıtlı ise isim inputunu gizle
-    document.getElementById('registerDiv').style.display = 'none';
-    document.getElementById('message').style.color = 'green';
-    document.getElementById('message').textContent = 'Zaten kayıtlısın!';
-  } else {
-    // Kayıtlı değilse input göster
-    document.getElementById('registerDiv').style.display = 'block';
-    document.getElementById('message').textContent = '';
-  }
-  updateUsersTable();
-}
-
-// Kayıt butonuna basınca
-document.getElementById('saveNameBtn').addEventListener('click', () => {
-  const nameInput = document.getElementById('nameInput');
-  const name = nameInput.value.trim();
-  const message = document.getElementById('message');
-
-  if (!name) {
-    message.style.color = 'red';
-    message.textContent = 'Lütfen bir isim gir!';
-    return;
-  }
-
-  if (!user) {
-    message.style.color = 'red';
-    message.textContent = 'Önce Google ile giriş yapmalısın!';
-    return;
-  }
-
-  if (isUserRegistered(user.sub)) {
-    message.style.color = 'red';
-    message.textContent = 'Zaten kayıtlısın!';
-    return;
-  }
-
-  // Yeni kullanıcıyı kaydet
-  const users = getUsersList();
-  users.push({sub: user.sub, name: name, email: user.email});
-  setUsersList(users);
-
-  message.style.color = 'green';
-  message.textContent = 'Kayıt başarılı!';
-
-  // Inputu gizle
-  document.getElementById('registerDiv').style.display = 'none';
-
-  updateUsersTable();
-});
-
-// Sayfa yüklendiğinde eğer daha önce giriş yapılmışsa kullanıcıyı otomatik tanı
-window.onload = () => {
-  const users = getUsersList();
-
-  // localStorage'da login bilgisi yok, yapacak bir şey yok
-  // Bu örnekte tokeni saklamıyoruz, ama kullanıcı adını saklıyoruz (isim kayıt için)
-  // O yüzden sayfa yenilendiğinde kullanıcıyı tanıyamıyoruz,
-  // gerçek projede Firebase veya backend lazım.
-
-  updateUsersTable();
-};
-</script>
-
+    window.onload = () => {
+      fetchUsersFromSheet();
+    };
+  </script>
 </body>
 </html>
