@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Google Giriş + Kayıt</title>
+<title>Google Giriş + Kayıt Tablosu</title>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -12,6 +12,9 @@
   #user-info { margin-top: 20px; }
   #registerDiv { display:none; margin-top: 20px; }
   input { padding: 5px; }
+  table { border-collapse: collapse; margin-top: 20px; width: 100%; max-width: 400px; }
+  th, td { border: 1px solid #999; padding: 8px; text-align: left; }
+  #countBar { margin-top: 10px; font-weight: bold; }
 </style>
 
 </head>
@@ -34,14 +37,69 @@
   <p id="message" style="color:red;"></p>
 </div>
 
-<script>
-// Giriş yapan kullanıcının bilgisi saklanacak
-let user = null;
-let hasRegistered = false;
+<h3>Kayıtlı Kullanıcılar</h3>
+<div id="countBar">0 / 1000 kişi kayıt oldu</div>
+<table id="usersTable">
+  <thead>
+    <tr><th>Ad</th><th>Email</th></tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
 
+<script>
+let user = null;
+
+// localStorage'da kayıtlar usersList olarak JSON dizisi tutulacak
+// format: [{sub, name, email}]
+
+// Helper: Kayıtlı kullanıcıları getir
+function getUsersList() {
+  const data = localStorage.getItem('usersList');
+  return data ? JSON.parse(data) : [];
+}
+
+// Helper: Kayıtlı kullanıcıları kaydet
+function setUsersList(list) {
+  localStorage.setItem('usersList', JSON.stringify(list));
+}
+
+// Kullanıcı zaten kayıtlı mı kontrol et
+function isUserRegistered(sub) {
+  return getUsersList().some(u => u.sub === sub);
+}
+
+// Kayıtlı kullanıcı bilgilerini getir
+function getUserInfo(sub) {
+  return getUsersList().find(u => u.sub === sub);
+}
+
+// Tabloyu güncelle
+function updateUsersTable() {
+  const tbody = document.querySelector('#usersTable tbody');
+  tbody.innerHTML = ''; // temizle
+  const users = getUsersList();
+  users.forEach(u => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${u.name}</td><td>${u.email}</td>`;
+    tbody.appendChild(tr);
+  });
+  // Sayaç güncelle
+  document.getElementById('countBar').textContent = `${users.length} / 1000 kişi kayıt oldu`;
+}
+
+// Google'dan gelen credential'ı çöz
+function parseJwt(token) {
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+  return JSON.parse(jsonPayload);
+}
+
+// Google giriş yapınca
 function handleCredentialResponse(response) {
-  // Google'dan JWT token geliyor ama biz basit demo yapıyoruz
-  // decodeJwt kısmı token'dan isim alma fonksiyonu
   const data = parseJwt(response.credential);
   user = data;
 
@@ -49,40 +107,68 @@ function handleCredentialResponse(response) {
     <p><b>Hoşgeldin, ${user.name}</b> (${user.email})</p>
   `;
 
-  // Daha önce kayıt yaptı mı?
-  if (localStorage.getItem('registered_'+user.sub)) {
-    hasRegistered = true;
+  if (isUserRegistered(user.sub)) {
+    // Kayıtlı ise isim inputunu gizle
     document.getElementById('registerDiv').style.display = 'none';
-    document.getElementById('message').textContent = 'Zaten kayıt oldun!';
+    document.getElementById('message').style.color = 'green';
+    document.getElementById('message').textContent = 'Zaten kayıtlısın!';
   } else {
+    // Kayıtlı değilse input göster
     document.getElementById('registerDiv').style.display = 'block';
+    document.getElementById('message').textContent = '';
   }
+  updateUsersTable();
 }
 
+// Kayıt butonuna basınca
 document.getElementById('saveNameBtn').addEventListener('click', () => {
-  const name = document.getElementById('nameInput').value.trim();
+  const nameInput = document.getElementById('nameInput');
+  const name = nameInput.value.trim();
+  const message = document.getElementById('message');
+
   if (!name) {
-    document.getElementById('message').textContent = 'Lütfen adını gir!';
+    message.style.color = 'red';
+    message.textContent = 'Lütfen bir isim gir!';
     return;
   }
-  // Kayıt yapıldı diye localStorage kaydet
-  localStorage.setItem('registered_' + user.sub, name);
-  hasRegistered = true;
-  document.getElementById('message').style.color = 'green';
-  document.getElementById('message').textContent = 'Kayıt başarılı!';
+
+  if (!user) {
+    message.style.color = 'red';
+    message.textContent = 'Önce Google ile giriş yapmalısın!';
+    return;
+  }
+
+  if (isUserRegistered(user.sub)) {
+    message.style.color = 'red';
+    message.textContent = 'Zaten kayıtlısın!';
+    return;
+  }
+
+  // Yeni kullanıcıyı kaydet
+  const users = getUsersList();
+  users.push({sub: user.sub, name: name, email: user.email});
+  setUsersList(users);
+
+  message.style.color = 'green';
+  message.textContent = 'Kayıt başarılı!';
+
+  // Inputu gizle
   document.getElementById('registerDiv').style.display = 'none';
+
+  updateUsersTable();
 });
 
-// JWT token'ı decode et
-function parseJwt(token) {
-  var base64Url = token.split('.')[1];
-  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-  }).join(''));
+// Sayfa yüklendiğinde eğer daha önce giriş yapılmışsa kullanıcıyı otomatik tanı
+window.onload = () => {
+  const users = getUsersList();
 
-  return JSON.parse(jsonPayload);
-}
+  // localStorage'da login bilgisi yok, yapacak bir şey yok
+  // Bu örnekte tokeni saklamıyoruz, ama kullanıcı adını saklıyoruz (isim kayıt için)
+  // O yüzden sayfa yenilendiğinde kullanıcıyı tanıyamıyoruz,
+  // gerçek projede Firebase veya backend lazım.
+
+  updateUsersTable();
+};
 </script>
 
 </body>
