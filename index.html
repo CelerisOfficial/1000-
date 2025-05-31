@@ -20,8 +20,8 @@
     color: #eee;
   }
   #container {
-    width: 400px;
-    height: 600px;
+    width: 700px;
+    height: 700px;
     background: #12172f;
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.7);
@@ -33,7 +33,7 @@
     padding: 20px;
     background: #152445;
     text-align: center;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 700;
     letter-spacing: 1.2px;
     border-bottom: 2px solid #2f3a66;
@@ -41,34 +41,37 @@
   }
   #chat {
     flex: 1;
-    padding: 20px;
+    padding: 25px;
     overflow-y: auto;
     scroll-behavior: smooth;
     background: #1c294b;
+    font-size: 17px;
+    line-height: 1.5;
   }
   .message {
-    max-width: 75%;
-    padding: 12px 18px;
-    margin-bottom: 15px;
-    border-radius: 20px;
-    line-height: 1.3;
+    max-width: 70%;
+    padding: 14px 22px;
+    margin-bottom: 18px;
+    border-radius: 25px;
+    line-height: 1.4;
     word-wrap: break-word;
-    font-size: 15px;
+    font-size: 16px;
     position: relative;
     opacity: 0;
     animation: fadeIn 0.3s forwards;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
   }
   .user {
     background: #4caf50;
     color: white;
     align-self: flex-end;
-    border-bottom-right-radius: 0;
+    border-bottom-right-radius: 5px;
   }
   .bot {
     background: #2979ff;
     color: white;
     align-self: flex-start;
-    border-bottom-left-radius: 0;
+    border-bottom-left-radius: 5px;
   }
   @keyframes fadeIn {
     to {
@@ -77,15 +80,15 @@
   }
   #inputArea {
     display: flex;
-    padding: 15px;
+    padding: 18px 22px;
     background: #152445;
     border-top: 2px solid #2f3a66;
   }
   #userInput {
     flex: 1;
-    padding: 14px 20px;
-    font-size: 16px;
-    border-radius: 25px;
+    padding: 16px 22px;
+    font-size: 18px;
+    border-radius: 30px;
     border: none;
     outline: none;
     background: #26386f;
@@ -103,10 +106,10 @@
     border: none;
     color: white;
     font-weight: 700;
-    font-size: 16px;
-    padding: 0 25px;
-    margin-left: 12px;
-    border-radius: 25px;
+    font-size: 18px;
+    padding: 0 28px;
+    margin-left: 15px;
+    border-radius: 30px;
     cursor: pointer;
     transition: background 0.3s ease;
   }
@@ -115,7 +118,7 @@
   }
   /* Scrollbar */
   #chat::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
   }
   #chat::-webkit-scrollbar-track {
     background: #1c294b;
@@ -129,10 +132,10 @@
 <body>
 
 <div id="container">
-  <div id="header">UNDCPT - Yapay Zeka Asistanın 🤖</div>
+  <div id="header">UNDCPT - Yapay Zeka Asistanın</div>
   <div id="chat"></div>
   <div id="inputArea">
-    <input type="text" id="userInput" placeholder="Bir şeyler yaz, knk..." autocomplete="off" />
+    <input type="text" id="userInput" placeholder="Bi şey yaz, knk..." autocomplete="off" />
     <button id="sendBtn">Gönder</button>
   </div>
 </div>
@@ -142,18 +145,18 @@
   const userInput = document.getElementById('userInput');
   const sendBtn = document.getElementById('sendBtn');
 
-  // Daha gelişmiş cevap veri tabanı
+  // Daha geniş kelime veritabanı (küçük varyasyonlarla)
   const responses = [
     {
-      keywords: ["merhaba", "selam", "hey", "hello"],
+      keywords: ["merhaba", "selam", "selamm", "hey", "hello", "hallo", "helo"],
       answers: [
-        "Selam knk, n'aber?",
-        "Hey! Sana nasıl yardımcı olabilirim?",
-        "Selam dostum, naber?"
+        "Selam knk, naber?",
+        "Hey! Nasılsın bakalım?",
+        "Selam dostum, ne haber?"
       ]
     },
     {
-      keywords: ["nasılsın", "nasilsin", "nasılsın?", "napıyorsun", "napiyon"],
+      keywords: ["nasılsın", "nasilsin", "napıyorsun", "napıyon", "naber", "iyimisin", "naber knk", "napıyon", "napiyon"],
       answers: [
         "Ben hep iyiyim, sen nasılsın?",
         "İyiyim knk, sen nasılsın?",
@@ -161,7 +164,7 @@
       ]
     },
     {
-      keywords: ["sen kimsin", "kim o", "kim bu", "adın ne"],
+      keywords: ["sen kimsin", "kim o", "kim bu", "adın ne", "ismin ne", "adın"],
       answers: [
         "Ben UNDCPT, senin yapay zeka asistanın!",
         "UNDCPT burda knk, sana yardımcı olmak için!",
@@ -169,7 +172,7 @@
       ]
     },
     {
-      keywords: ["ne yapıyorsun", "ne yapıyorsun?"],
+      keywords: ["ne yapıyorsun", "ne yapıyorsun?", "napiyorsun", "napiyon", "napıyorsun"],
       answers: [
         "Sana yardım etmek için buradayım!",
         "Buradayım, sorularını bekliyorum!",
@@ -177,7 +180,7 @@
       ]
     },
     {
-      keywords: ["teşekkürler", "tesekkür", "eyvallah", "sağol", "sağolasın"],
+      keywords: ["teşekkürler", "tesekkür", "eyvallah", "sağol", "sağolasın", "sağolun"],
       answers: [
         "Eyvallah knk, her zaman!",
         "Rica ederim dostum!",
@@ -185,7 +188,7 @@
       ]
     },
     {
-      keywords: ["görüşürüz", "bye", "hoşça kal", "bye bye", "gule gule"],
+      keywords: ["görüşürüz", "bye", "hoşça kal", "bye bye", "gule gule", "hoşça"],
       answers: [
         "Görüşürüz knk, kendine iyi bak!",
         "Sonra konuşuruz, kolay gelsin!",
@@ -193,11 +196,26 @@
       ]
     },
     {
-      keywords: ["nasıl yardım edersin", "yardım", "yardim", "ne yaparsın"],
+      keywords: ["nasıl yardım edersin", "yardım", "yardim", "ne yaparsın", "nasil yardim"],
       answers: [
         "Sorularını cevaplar, fikirler verir, kodlarda yardımcı olurum!",
         "Oyunlar, siteler, kodlama her şeyde yanındayım!",
         "Kod yazarım, sohbet ederim, dert dinlerim :)"
+      ]
+    },
+    {
+      keywords: ["hava durumu", "hava nasıl", "hava nasil", "hava durumu nedir"],
+      answers: [
+        "Hava durumunu direkt veremem ama dışarı çıkıp kontrol etmek iyi fikir :)",
+        "Şu an hava durumuna bakamıyorum ama umarım güzel!",
+      ]
+    },
+    {
+      keywords: ["seni kim yaptı", "kimi yaptın", "kim yarattı", "kim yaptı"],
+      answers: [
+        "Beni Under adlı kral yaptı!",
+        "Under benim yaratıcım, kanka :)",
+        "Under bu yapay zekayı tasarladı."
       ]
     }
   ];
@@ -210,52 +228,46 @@
     chat.scrollTop = chat.scrollHeight;
   }
 
+  function cleanInput(input) {
+    return input
+      .toLowerCase()
+      .replace(/[.,!?]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   function findResponse(input) {
-    input = input.toLowerCase();
+    input = cleanInput(input);
     for (const entry of responses) {
       for (const key of entry.keywords) {
         if (input.includes(key)) {
-          // Rastgele cevap seç
           const ans = entry.answers[Math.floor(Math.random() * entry.answers.length)];
           return ans;
         }
       }
     }
-    // Anlamazsa değişik cevaplar verelim
-    const fallback = [
-      "Anlamadım knk, başka bir şey dene.",
-      "Hmm, onu çözemedim.",
-      "Bir daha söyler misin?",
-      "Bu konuda bilgim yok ama öğreniyorum.",
-      "Farklı bir şey sor, olur mu?"
-    ];
-    return fallback[Math.floor(Math.random() * fallback.length)];
+    // Daha esnek cevap
+    if (input.length < 3) return "Biraz daha uzun yaz knk :)";
+    return "Bunu tam anlayamadım ama yine de buradayım, başka bir şey sorabilirsin!";
   }
 
-  function sendMessage() {
-    const message = userInput.value.trim();
-    if (!message) return;
+  function handleSend() {
+    const text = userInput.value.trim();
+    if (!text) return;
+    addMessage(text, 'user');
+    userInput.value = "";
 
-    addMessage("Sen: " + message, 'user');
-
-    // Bot cevap biraz gecikmeli olsun daha gerçekçi
     setTimeout(() => {
-      const response = findResponse(message);
-      addMessage("UNDCPT: " + response, 'bot');
+      const reply = findResponse(text);
+      addMessage(reply, 'bot');
     }, 700);
-
-    userInput.value = '';
-    userInput.focus();
   }
 
-  sendBtn.addEventListener('click', sendMessage);
-  userInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') sendMessage();
+  sendBtn.addEventListener('click', handleSend);
+  userInput.addEventListener('keydown', e => {
+    if (e.key === "Enter") handleSend();
   });
 
-  // Başlangıç mesajı
-  addMessage("UNDCPT: Selam knk! Ben buradayım, istediğin bir şey sorabilirsin.", 'bot');
 </script>
-
 </body>
 </html>
