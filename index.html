@@ -1,62 +1,31 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>1000 Kayıt Sitesi</title>
+  <meta charset="UTF-8" />
+  <title>Kullanicilar</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 40px;
-      background: #f2f2f2;
-    }
-    h2 {
-      margin-top: 30px;
-    }
-    table {
-      margin: auto;
-      border-collapse: collapse;
-      width: 80%;
-      max-width: 800px;
-      background: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 12px;
-      border: 1px solid #ccc;
-    }
-    th {
-      background: #eee;
-    }
-    #userCount {
-      color: green;
-    }
-    #successMessage, #writeButton, #nameInputArea {
-      margin-top: 20px;
-      display: none;
-    }
+    body { font-family: Arial, sans-serif; margin: 40px; text-align: center; background: #f2f2f2; }
+    h2 { margin-top: 30px; }
+    table { margin: auto; border-collapse: collapse; width: 80%; max-width: 800px; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+    th, td { padding: 12px; border: 1px solid #ccc; }
+    th { background: #eee; }
+    #userCount { color: green; }
+    #successMessage, #writeButton { margin-top: 20px; display: none; }
     #writeButton {
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 6px;
+      padding: 10px 20px; font-size: 16px; background: #4CAF50; color: white; border: none;
+      cursor: pointer; border-radius: 6px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Google Giriş -->
   <div id="googleSignInArea">
     <div id="g_id_onload"
       data-client_id="537474382538-bp4g5n0ute985jq2qs2lbestg82cgid5.apps.googleusercontent.com"
       data-callback="handleCredentialResponse"
-      data-auto_prompt="true">
-    </div>
+      data-auto_prompt="true"></div>
 
     <div class="g_id_signin"
       data-type="standard"
@@ -64,37 +33,81 @@
       data-theme="outline"
       data-text="sign_in_with"
       data-shape="rectangular"
-      data-logo_alignment="left">
-    </div>
+      data-logo_alignment="left"></div>
   </div>
 
-  <!-- İsim Giriş Alanı -->
-  <div id="nameInputArea">
-    <input type="text" id="customName" placeholder="Adını yaz" style="padding:8px; font-size:16px;">
+  <div id="nameInputArea" style="display:none; margin-top:20px;">
+    <input type="text" id="customName" placeholder="Adını yaz" style="padding:8px; font-size:16px;" />
     <button onclick="submitCustomName()" style="padding:8px 16px; font-size:16px;">Kaydet</button>
   </div>
 
-  <!-- Başarı Mesajı ve Buton -->
   <div id="successMessage">✅ Kayıt başarılı!</div>
   <button id="writeButton">Yaz</button>
 
-  <!-- Kullanıcı Tablosu -->
   <h2>Kayıt Olanlar <span id="userCount">0/1000</span></h2>
   <table>
     <thead>
-      <tr>
-        <th>#</th>
-        <th>İsim</th>
-        <th>Email</th>
-      </tr>
+      <tr><th>#</th><th>İsim</th><th>Email</th></tr>
     </thead>
     <tbody id="userTable"></tbody>
   </table>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyBP9CFVm16fHKq10Wj1J46fm4NXWPmjlFclOekQFsTQY2S1UtDyxsYzEZNDBHD2uehGg/exec"; // Kendi URL'inle değiştir
+    const API_URL = "YOUR_DEPLOYED_WEB_APP_URL_HERE"; // Buraya Apps Script URL'nizi koy
+
     let currentUser = null;
     let allUsers = [];
+
+    // Google giriş sonrası token decode
+    function handleCredentialResponse(response) {
+      const userInfo = jwt_decode(response.credential);
+      currentUser = {
+        sub: userInfo.sub,
+        name: "",  // İsim kullanıcıdan alınacak
+        email: userInfo.email
+      };
+
+      // Google Giriş butonlarını gizle, isim yazma alanını aç
+      document.getElementById("googleSignInArea").style.display = "none";
+      document.getElementById("nameInputArea").style.display = "block";
+    }
+
+    // İsim gönder
+    async function submitCustomName() {
+      const customName = document.getElementById("customName").value.trim();
+      if (!customName) {
+        alert("Lütfen ismini yaz.");
+        return;
+      }
+
+      currentUser.name = customName;
+      await saveUserToSheet(currentUser);
+      document.getElementById("nameInputArea").style.display = "none";
+    }
+
+    async function saveUserToSheet(user) {
+      // Aynı sub daha önce var mı kontrol et
+      const alreadyExists = allUsers.some(u => u.sub === user.sub);
+      if (alreadyExists) {
+        showSuccessUI();
+        return;
+      }
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user)
+      });
+
+      const result = await res.json();
+      console.log("Kayıt sonucu:", result);
+      if (result.success) {
+        await fetchUsersFromSheet();
+        showSuccessUI();
+      } else {
+        alert("Kayıt sırasında hata: " + (result.error || "Bilinmeyen hata"));
+      }
+    }
 
     async function fetchUsersFromSheet() {
       const res = await fetch(API_URL);
@@ -106,6 +119,7 @@
     function updateUsersTable(users) {
       const table = document.getElementById("userTable");
       table.innerHTML = "";
+
       users.forEach((user, index) => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -115,47 +129,8 @@
         `;
         table.appendChild(row);
       });
+
       document.getElementById("userCount").innerText = `${users.length}/1000`;
-    }
-
-    function handleCredentialResponse(response) {
-      const userInfo = jwt_decode(response.credential);
-      const user = {
-        sub: userInfo.sub,
-        name: "", // Daha sonra inputtan alınacak
-        email: userInfo.email
-      };
-
-      currentUser = user;
-      document.getElementById("googleSignInArea").style.display = "none";
-      document.getElementById("nameInputArea").style.display = "block";
-    }
-
-    function submitCustomName() {
-      const name = document.getElementById("customName").value.trim();
-      if (!name) return alert("İsim boş olamaz.");
-      currentUser.name = name;
-
-      const alreadyExists = allUsers.some(u => u.sub === currentUser.sub);
-      if (alreadyExists) {
-        showSuccessUI();
-        return;
-      }
-
-      fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(currentUser)
-      })
-      .then(res => res.json())
-      .then(result => {
-        if (result.success) {
-          showSuccessUI();
-          fetchUsersFromSheet();
-        }
-      });
-
-      document.getElementById("nameInputArea").style.display = "none";
     }
 
     function showSuccessUI() {
@@ -163,7 +138,10 @@
       document.getElementById("writeButton").style.display = "inline-block";
     }
 
-    window.onload = fetchUsersFromSheet;
+    window.onload = () => {
+      fetchUsersFromSheet();
+    };
   </script>
+
 </body>
 </html>
