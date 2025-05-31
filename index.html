@@ -191,7 +191,7 @@
             "Schrödinger Denklemi", "Heisenberg Belirsizlik İlkesi", "Elektrik ve Manyetizma", "Maxwell Denklemleri", "Elektromanyetik Spektrum",
             "Optik ve Kırınım", "Lazer Fiziği", "Katı Hal Fiziği", "Yarı İletken Diyagramları", "Süperiletkenlik",
             "Spintronik", "Plazma Fiziği", "Kuantum Alan Teorisi", "Karanlık Madde", "Karanlık Enerji",
-            "Kozmoloji ve Evren Modeli", "Büyük Patlama Kuramı", "Astronomi ve Galaksi Dinamikleri", "Rölativistik Partiküller", "Nötron Yıldızları",
+            "Kozmoloji ve Evren Modeli", "Büyük Patlama Kuramı", "Astronomi ve Galiksi Dinamikleri", "Rölativistik Partiküller", "Nötron Yıldızları",
             "Süpernova Patlamaları", "Kozmik Işınlar", "Plank Uzay Zamanı", "Feynman Diyagramları", "Lagrange Fonksiyonu"
         ],
         "din": [
@@ -305,4 +305,37 @@
         bubble.classList.add('bubble');
         bubble.innerText = text;
         messageElem.appendChild(bubble);
-        chatMessages.appendChild(message
+        chatMessages.appendChild(messageElem);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Kullanıcı girişi al ve yanıt oluştur
+    document.getElementById('sendBtn').addEventListener('click', function() {
+        var userInput = document.getElementById('userInput');
+        var userText = userInput.value.trim();
+        if (userText === '') return;
+        addMessage(userText, 'user');
+        document.getElementById('userInput').value = '';
+        setTimeout(function() {
+            var botResponse = generateResponse(userText);
+            addMessage(botResponse, 'bot');
+        }, 500);
+    });
+
+    // Enter tuşu ile gönderme
+    document.getElementById('userInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('sendBtn').click();
+        }
+    });
+
+    // İlk selamlama mesajı
+    window.onload = function() {
+        var welcomeMessage = "UNDCTP'ye hoş geldiniz! Dilediğiniz konuda soru sorabilirsiniz.";
+        addMessage(welcomeMessage, 'bot');
+    };
+
+</script>
+
+</body>
+</html>
