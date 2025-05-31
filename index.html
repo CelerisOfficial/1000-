@@ -13,93 +13,103 @@
             box-sizing: border-box;
         }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            /* Chat ekranı tüm görüntü alanını kaplar */
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #343541;
             width: 100vw;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            color: #e5e5e5;
         }
         .chat-container {
             width: 90vw;
             height: 90vh;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 10px;
+            background-color: #40414f;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         .chat-header {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #343541;
+            color: #fafafa;
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             font-size: 1.5rem;
             font-weight: bold;
+            border-bottom: 1px solid #565666;
         }
         .chat-messages {
             flex: 1;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
         }
         .chat-input-area {
             display: flex;
-            border-top: 1px solid #ccc;
+            background-color: #343541;
+            border-top: 1px solid #565666;
         }
         .chat-input {
             flex: 1;
-            padding: 15px;
+            padding: 12px 16px;
             border: none;
-            font-size: 1.2rem;
-            font-weight: bold; /* Yazı fontunu daha kalın yapıyoruz */
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: #444654;
+            color: #e5e5e5;
+        }
+        .chat-input::placeholder {
+            color: #999;
         }
         .chat-input:focus {
             outline: none;
         }
         .chat-send-btn {
-            background-color: #4CAF50;
+            background-color: #10a37f;
             color: white;
             border: none;
-            padding: 15px 25px;
+            padding: 12px 20px;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
         }
         .chat-send-btn:hover {
-            background-color: #45a049;
+            background-color: #0d7b61;
         }
         .message {
-            margin-bottom: 20px;
-            line-height: 1.6;
-            font-weight: bold; /* Mesaj balonlarındaki yazı kalın */
+            margin-bottom: 16px;
+            line-height: 1.5;
+            display: flex;
         }
         .message.user {
-            text-align: right;
+            justify-content: flex-end;
         }
         .message.bot {
-            text-align: left;
+            justify-content: flex-start;
+        }
+        .message .bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            white-space: pre-wrap;
         }
         .message.user .bubble {
-            display: inline-block;
-            background-color: #DCF8C6;
-            color: #000;
-            padding: 15px;
-            border-radius: 20px;
-            max-width: 80%;
-            font-weight: bold;
+            background-color: #19a974;
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+            border-bottom-left-radius: 12px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
         }
         .message.bot .bubble {
-            display: inline-block;
-            background-color: #eee;
-            color: #000;
-            padding: 15px;
-            border-radius: 20px;
-            max-width: 80%;
-            font-weight: bold;
+            background-color: #444654;
+            color: #e5e5e5;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 12px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
         }
         /* Responsive tasarım */
         @media (max-width: 768px) {
@@ -110,15 +120,15 @@
             }
             .chat-header {
                 font-size: 1.2rem;
-                padding: 15px;
+                padding: 12px;
             }
             .chat-input {
-                font-size: 1rem;
-                padding: 10px;
+                font-size: 0.9rem;
+                padding: 10px 12px;
             }
             .chat-send-btn {
-                font-size: 1rem;
-                padding: 10px 20px;
+                font-size: 0.9rem;
+                padding: 10px 16px;
             }
         }
         /* Boş yorum satırları ve satır sayısını artırmak için */
@@ -138,44 +148,90 @@
 </div>
 
 <script>
-    // Örnek genel sohbet yanıtları (ChatGPT benzeri deneyim için genişletilebilir)
+    // Geliştirilmiş genel sohbet yanıtları
     var generalResponses = [
-        "Anladım. Daha fazla detay verebilir misiniz?",
-        "Bu ilginç bir konu! Başka ne söyleyebilirim?",
-        "Maalesef bu konuda geniş bir bilgim yok, ama başka konuda yardımcı olabilirim.",
-        "Tabii, başka bir sorunuz var mı?",
-        "Derinlemesine bir analiz yapmak ister misiniz?"
+        "Tabii, nasıl yardımcı olabilirim?", 
+        "Bu konuda detaylıa girebilirim, ne öğrenmek istiyorsunuz?", 
+        "Elimdeki verilerle yardımcı olmaya çalışırım, sorunuz nedir?",
+        "Detay verirseniz daha iyi yanıtlayabilirim.",
+        "Başka bir konu hakkında da konuşabiliriz.",
     ];
 
-    // Domain kelime dağarcığı (daha fazla konu eklenebilir)
+    // Genişletilmiş domain kelime dağarcığı
     var domainVocabulary = {
-        "matematik": ["Topoloji", "Diferansiyel Denklemler", "Lineer Cebir", "Fourier Analizi", "Kombinatorik"],
-        "biyoloji": ["DNA", "RNA", "Hücre Bölünmesi", "Protein Sentezi", "Evrelimi Biyoloji"],
-        "fizik": ["Kuantum Mekaniği", "Görelilik", "Termodinamik", "Elektromanyetizma", "Optik"],
-        // Ek domainlar örnek: yazılım, tarih, edebiyat
-        "yazılım": ["Algoritma", "Veri Yapıları", "Sürekli Entegrasyon", "REST API", "Makine Öğrenmesi"],
-        "tarih": ["Osmanlı İmparatorluğu", "Rönesans", "Soğuk Savaş", "Endüstri Devrimi", "İstanbul'un Fethi"],
-        "edebiyat": ["Romantizm", "Realizm", "Postmodern", "Şiir", "Roman"],
+        "matematik": [
+            "Topoloji", "Diferansiyel Denklemler", "Lineer Cebir", "Çok Değişkenli Analiz", "Öklidyen Uzay",
+            "Fourier Analizi", "Polinom Teorisi", "Diziler ve Seriler", "Kombinatorik", "Olasılık Teorisi",
+            "İstatistiksel İnferans", "Varyans ve Kovaryans", "Matris Teorisi", "Determinant", "Eigen Değerler",
+            "Norm ve İç Çarpım", "Çok Boyutlu Optimizasyon", "Dalga Teorisi", "Laplace Dönüşümü", "Hilbert Uzayı",
+            "Fonksiyonel Analiz", "Riemann Teorisi", "Analitik Sayılar Kuramı", "Sayı Teorisi", "Graf Teorisi",
+            "Karmaşıklık Teorisi", "Paradokslar ve Teoremler", "Koordinat Dönüşümleri", "Sonsuz Küme Teorisi", "Fourier Dönüşümü",
+            "Lagrange Çarpanları", "Euler-Lagrange Denklemleri", "Nümerik Metotlar", "İntegral Yaklaşımları", "Cauchy Deneyimi",
+            "Bessel Fonksiyonları", "Hermite Polinomları", "Laguerre Polinomları", "Kuantum Geometri", "Matrix Hesaplama",
+            "Serbest Kalma Fonksiyonları", "Kalıntı Teoremi", "Euler Teoremleri", "Lineer Dönüşümler", "Eigen Vektörler"
+        ],
+        "biyoloji": [
+            "Deoksiribonükleik Asit (DNA)", "Ribonükleik Asit (RNA)", "Genomik Sekanslama", "Protein Sentezi", "Hücre Bölünmesi",
+            "Mitoz ve Mayoz", "Kromozom Yapısı", "Epigenetik Modifikasyon", "Transkripsiyon Faktörleri", "Genetik Kod",
+            "Mutasyonlar", "Genetik Rekombinasyon", "Enzim Kinetiği", "Hücre Sinyalizasyonu", "Hücresel Solunum",
+            "Glikoliz", "Krebs Döngüsü", "ATP Sentezi", "Fotosentez Reaksiyonları", "Mitokondriyal DNA",
+            "Kloroplast Yapısı", "Biyoinformatik", "Fosfolipid Çift Katman", "Hücre Zarı Transportu", "Aktin ve Miyozin",
+            "Hücre İskeleti", "Nörotransmitter Salınımı", "Sinaps Yapısı", "Endoplazmik Retikulum", "Golgi Aygıtı",
+            "Lizozom", "Peroksizom", "Hücre Döngüsü Düzenleyicileri", "Onkogen ve Tümör Baskılayıcı Gen", "Apoptoz ve Nekroz",
+            "İmmünolojik Yanıt", "Antikor Özellikleri", "B Lenfositleri ve T Lenfositleri", "Sitokin Sinyalizasyonu", "Mikrobiyom Ekosistemleri",
+            "Popülasyon Genetiği", "Evrimsel Biyoloji Kuramları", "Fosil Kayıtları", "Moleküler Biyoloji Yöntemleri", "Protein Katlanması"
+        ],
+        "fizik": [
+            "Kuantum Mekaniği", "Görelilik Kuramı", "Özel Görelilik", "Genel Görelilik", "Kara Delik Termodinamiği",
+            "Parçacık Fiziği", "Standart Model", "Bozon ve Fermion", "Higgs Bozonu", "Nükleer Fizik",
+            "Radyasyon Fiziği", "Termodinamik Yasaları", "Entropi ve Enerji Değişimi", "Isı Kapasitesi", "Dalga-Parçacık İkiliği",
+            "Schrödinger Denklemi", "Heisenberg Belirsizlik İlkesi", "Elektrik ve Manyetizma", "Maxwell Denklemleri", "Elektromanyetik Spektrum",
+            "Optik ve Kırınım", "Lazer Fiziği", "Katı Hal Fiziği", "Yarı İletken Diyagramları", "Süperiletkenlik",
+            "Spintronik", "Plazma Fiziği", "Kuantum Alan Teorisi", "Karanlık Madde", "Karanlık Enerji",
+            "Kozmoloji ve Evren Modeli", "Büyük Patlama Kuramı", "Astronomi ve Galaksi Dinamikleri", "Rölativistik Partiküller", "Nötron Yıldızları",
+            "Süpernova Patlamaları", "Kozmik Işınlar", "Plank Uzay Zamanı", "Feynman Diyagramları", "Lagrange Fonksiyonu"
+        ],
+        "yazılım": [
+            "Algoritma", "Veri Yapıları", "Sürekli Entegrasyon", "REST API", "Makine Öğrenmesi",
+            "Yapay Sinir Ağları", "Python Programlama", "JavaScript FrameWork'leri", "Veri Tabanı Tasarımı", "Bulut Bilişim",
+            "Docker Konteynerleri", "Kubernetes Orkestrasyonu", "Versiyon Kontrol (Git)", "Backend Mimarileri", "Frontend Geliştirme",
+            "Web Güvenliği", "Yazılım Mühendisliği Prensipleri", "Test Otomasyonu", "Mobil Uygulama Geliştirme", "Oyun Motorları",
+            "Oyun Fizik Motoru", "Gerçek Zamanlı İşleme", "Kriptografi", "Blockchain Teknolojisi", "Sanal Gerçeklik"
+        ],
+        "tarih": [
+            "Osmanlı İmparatorluğu", "Rönesans", "Soğuk Savaş", "Endüstri Devrimi", "İstanbul'un Fethi",
+            "Fransız Devrimi", "Amerikan Bağımsızlık Savaşı", "İkinci Dünya Savaşı", "Soğuk Savaş Dönemi", "Roma İmparatorluğu",
+            "Antik Mısır", "Büyük İskender", "Moğol İmparatorluğu", "Sanayi Devrimi", "1980 Darbesi",
+            "2. Meşrutiyet", "Cumhuriyetin Kuruluşu", "Türk Kurtuluş Savaşı", "Osmanlı Kültürü", "Haçlı Seferleri",
+            "Orta Çağ", "Rönesans Sanatı", "Aydınlanma Çağı", "Sanayi 4.0", "Dünya Ticaret Örgütü"
+        ],
+        "edebiyat": [
+            "Romantizm", "Realizm", "Postmodernizm", "Şiir", "Roman",
+            "Modernizm", "Nurcular", "Divan Edebiyatı", "Servet-i Fünun", "Geleneksel Türk Tiyatrosu",
+            "Masal ve Hikaye", "Mitoloji", "Shakespeare", "Tolstoy", "Dante",
+            "Kafka", "Nietzsche Yazıları", "Edebiyat Kuramları", "Eleştirel Teori", "Dramatik Yapı",
+            "Çağdaş Türk Edebiyatı", "Şiirsel Anlatım Teknikleri", "Epik Şiir", "Lirik Şiir", "Tiyatro Sahneleme"
+        ]
     };
 
     // Kullanıcının sorusunu al ve yanıt oluştur
     function generateResponse(userText) {
         var lowerText = userText.toLowerCase();
-        var response = "Bot: " + generalResponses[Math.floor(Math.random() * generalResponses.length)];
-        
-        // Domain eşleştirme
+        var response = generalResponses[Math.floor(Math.random() * generalResponses.length)];
+
+        // Domain eşleştirme ve kelime önerme
         for (var domain in domainVocabulary) {
             if (lowerText.includes(domain)) {
                 var terms = domainVocabulary[domain];
                 var term = terms[Math.floor(Math.random() * terms.length)];
-                response = domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + term + "'. Bu konuda daha ayrıntılı bilgi için araştırabilirsiniz.";
+                response = domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + term + "'. Bu konuda daha ayrıntılı bilgi edinebilirsiniz.";
                 return response;
             }
         }
 
-        // Derinlemesine veya genel soru gibi algılamalar (anahtar kelimelerle)
+        // “nasıl”, “neden” gibi soru yönlendirici kelimeler
         if (lowerText.includes("nasıl") || lowerText.includes("neden") || lowerText.includes("ne")) {
-            return "Bu konuda düşündüğünüz soruyu daha spesifik hale getirebilir misiniz? Örneğin adım adım nasıl çözülebileceğini tartışabiliriz.";
+            return "Bu soruyu daha detaylı inceleyelim. Adım adım nasıl ilerleyebileceğimizi tartışabiliriz.";
         }
         return response;
     }
@@ -215,212 +271,10 @@
 
     // İlk selamlama mesajı
     window.onload = function() {
-        var welcomeMessage = "UNDCTP'ye hoş geldiniz! Herhangi bir konuda soru sorabilirsiniz. Konu başlığı belirtmek, daha spesifik yanıt almaya yardımcı olur.";
+        var welcomeMessage = "UNDCTP'ye hoş geldiniz! Dilediğiniz konuda soru sorabilirsiniz.";
         addMessage(welcomeMessage, 'bot');
     };
-
-    // Ekstra boş satırlar ve yorumlar ekleyerek satır sayısını artırma
-    // 1
-    // 2
-    // 3
-    // 4
-    // 5
-    // 6
-    // 7
-    // 8
-    // 9
-    // 10
-    // 11
-    // 12
-    // 13
-    // 14
-    // 15
-    // 16
-    // 17
-    // 18
-    // 19
-    // 20
-    // 21
-    // 22
-    // 23
-    // 24
-    // 25
-    // 26
-    // 27
-    // 28
-    // 29
-    // 30
-    // 31
-    // 32
-    // 33
-    // 34
-    // 35
-    // 36
-    // 37
-    // 38
-    // 39
-    // 40
-    // 41
-    // 42
-    // 43
-    // 44
-    // 45
-    // 46
-    // 47
-    // 48
-    // 49
-    // 50
-    // 51
-    // 52
-    // 53
-    // 54
-    // 55
-    // 56
-    // 57
-    // 58
-    // 59
-    // 60
-    // 61
-    // 62
-    // 63
-    // 64
-    // 65
-    // 66
-    // 67
-    // 68
-    // 69
-    // 70
-    // 71
-    // 72
-    // 73
-    // 74
-    // 75
-    // 76
-    // 77
-    // 78
-    // 79
-    // 80
-    // 81
-    // 82
-    // 83
-    // 84
-    // 85
-    // 86
-    // 87
-    // 88
-    // 89
-    // 90
-    // 91
-    // 92
-    // 93
-    // 94
-    // 95
-    // 96
-    // 97
-    // 98
-    // 99
-    // 100
-    // 101
-    // 102
-    // 103
-    // 104
-    // 105
-    // 106
-    // 107
-    // 108
-    // 109
-    // 110
-    // 111
-    // 112
-    // 113
-    // 114
-    // 115
-    // 116
-    // 117
-    // 118
-    // 119
-    // 120
-    // 121
-    // 122
-    // 123
-    // 124
-    // 125
-    // 126
-    // 127
-    // 128
-    // 129
-    // 130
-    // 131
-    // 132
-    // 133
-    // 134
-    // 135
-    // 136
-    // 137
-    // 138
-    // 139
-    // 140
-    // 141
-    // 142
-    // 143
-    // 144
-    // 145
-    // 146
-    // 147
-    // 148
-    // 149
-    // 150
-    // 151
-    // 152
-    // 153
-    // 154
-    // 155
-    // 156
-    // 157
-    // 158
-    // 159
-    // 160
-    // 161
-    // 162
-    // 163
-    // 164
-    // 165
-    // 166
-    // 167
-    // 168
-    // 169
-    // 170
-    // 171
-    // 172
-    // 173
-    // 174
-    // 175
-    // 176
-    // 177
-    // 178
-    // 179
-    // 180
-    // 181
-    // 182
-    // 183
-    // 184
-    // 185
-    // 186
-    // 187
-    // 188
-    // 189
-    // 190
-    // 191
-    // 192
-    // 193
-    // 194
-    // 195
-    // 196
-    // 197
-    // 198
-    // 199
-    // 200
-
+   
 </script>
 
 </body>
