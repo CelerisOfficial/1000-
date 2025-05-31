@@ -148,6 +148,9 @@
 </div>
 
 <script>
+    // Bellek: kullanıcı adını saklamak için
+    var userName = "";
+
     // Geliştirilmiş genel sohbet yanıtları
     var generalResponses = [
         "Tabii, nasıl yardımcı olabilirim?", 
@@ -191,6 +194,12 @@
             "Kozmoloji ve Evren Modeli", "Büyük Patlama Kuramı", "Astronomi ve Galaksi Dinamikleri", "Rölativistik Partiküller", "Nötron Yıldızları",
             "Süpernova Patlamaları", "Kozmik Işınlar", "Plank Uzay Zamanı", "Feynman Diyagramları", "Lagrange Fonksiyonu"
         ],
+        "din": [
+            "İslam", "Hristiyanlık", "Yahudilik", "Budizm", "Hinduizm", "Sikhizm", "Şinto", "Konfüçyüsçülük",
+            "Taoizm", "Zerdüşt", "Sufizm", "Protestanlık", "Katoliklik", "Ortodoksluk", "Musevilik",
+            "Zen", "Meditasyon Teknikleri", "Kutsal Kitaplar", "Kutsal Mekanlar", "İbadet Pratikleri",
+            "Dini Bayramlar", "Ruhbanlık", "Müritler", "Hac", "Kurban", "Dua ve Ritüeller"
+        ],
         "yazılım": [
             "Algoritma", "Veri Yapıları", "Sürekli Entegrasyon", "REST API", "Makine Öğrenmesi",
             "Yapay Sinir Ağları", "Python Programlama", "JavaScript FrameWork'leri", "Veri Tabanı Tasarımı", "Bulut Bilişim",
@@ -219,13 +228,64 @@
         var lowerText = userText.toLowerCase();
         var response = generalResponses[Math.floor(Math.random() * generalResponses.length)];
 
-        // Domain eşleştirme ve kelime önerme
+        // Kullanıcı adını kaydetme: "benim adım..."
+        if (lowerText.startsWith("benim adım ")) {
+            var name = userText.substring(10).trim();
+            userName = name;
+            return "Memurum, adınızı hatırladım: " + userName;
+        }
+        // "ben kimim" veya "adım ne"
+        if (lowerText.includes("ben kimim") || lowerText.includes("adım ne")) {
+            if (userName !== "") {
+                return "Adınız: " + userName;
+            } else {
+                return "Adınızı henüz kaydetmedim. 'Benim adım ...' şeklinde söyleyebilirsiniz.";
+            }
+        }
+
+        // Kimlik/soru yanıtları
+        if (lowerText.includes("sen kimsin")) {
+            return "Ben UNDCTP adlı bir yapay zekayım.";
+        }
+        if (lowerText.includes("sen robot musun")) {
+            return "Hayır, ben bir yapay zekâyım, fiziksel bir robot değilim.";
+        }
+        if (lowerText.includes("sen erkek misin") || lowerText.includes("sen bekar misin")) {
+            return "Benim cinsiyetim veya medeni halim yok, ben sadece bir yapay zekayım.";
+        }
+        if (lowerText.includes("sen insan misin")) {
+            return "Hayır, ben bir yapay zekayım, insan değilim.";
+        }
+        if (lowerText.includes("sen yemek yer misin")) {
+            return "Ben bir yapay zekayım, fiziksel bir vücudum olmadığı için yemek yemem.";
+        }
+        if (lowerText.includes("sen su içer misin")) {
+            return "Ben bir yapay zekayım, su içme ihtiyacım yok.";
+        }
+
+        // Illegal / suça yönelik sorular
+        var illegalKeywords = ["illegal", "suç", "kaçak", "uyuşturucu", "bomb", "hırsızlık", "dolandırıcılık", "hack", "yasadışı"];
+        for (var i = 0; i < illegalKeywords.length; i++) {
+            if (lowerText.includes(illegalKeywords[i])) {
+                return "Bu konu hakkında cevap veremem, bu suç. Lütfen böyle işlere girişmeyin.";
+            }
+        }
+
+        // Domain eşleştirme ve kelime önerme (term bazlı kontrol)
         for (var domain in domainVocabulary) {
+            // Domain anahtar kelimesi ile kontrol
             if (lowerText.includes(domain)) {
                 var terms = domainVocabulary[domain];
                 var term = terms[Math.floor(Math.random() * terms.length)];
-                response = domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + term + "'. Bu konuda daha ayrıntılı bilgi edinebilirsiniz.";
-                return response;
+                return domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + term + "'. Bu konuda daha ayrıntılı bilgi edinebilirsiniz.";
+            }
+            // Spesifik terimler listede varsa kontrol
+            var termsList = domainVocabulary[domain];
+            for (var j = 0; j < termsList.length; j++) {
+                var lowerTerm = termsList[j].toLowerCase();
+                if (lowerText.includes(lowerTerm)) {
+                    return domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + termsList[j] + "'. Bu konuda daha ayrıntılı bilgi edinebilirsiniz.";
+                }
             }
         }
 
@@ -245,37 +305,4 @@
         bubble.classList.add('bubble');
         bubble.innerText = text;
         messageElem.appendChild(bubble);
-        chatMessages.appendChild(messageElem);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // Kullanıcı girişi al ve yanıt oluştur
-    document.getElementById('sendBtn').addEventListener('click', function() {
-        var userInput = document.getElementById('userInput');
-        var userText = userInput.value.trim();
-        if (userText === '') return;
-        addMessage(userText, 'user');
-        document.getElementById('userInput').value = '';
-        setTimeout(function() {
-            var botResponse = generateResponse(userText);
-            addMessage(botResponse, 'bot');
-        }, 500);
-    });
-
-    // Enter tuşu ile gönderme
-    document.getElementById('userInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('sendBtn').click();
-        }
-    });
-
-    // İlk selamlama mesajı
-    window.onload = function() {
-        var welcomeMessage = "UNDCTP'ye hoş geldiniz! Dilediğiniz konuda soru sorabilirsiniz.";
-        addMessage(welcomeMessage, 'bot');
-    };
-   
-</script>
-
-</body>
-</html>
+        chatMessages.appendChild(message
