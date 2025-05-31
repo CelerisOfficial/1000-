@@ -86,26 +86,34 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxF7MhqAVfPyuYaDKWqfQ9Y4Dhf3WMJawLrMtU72E1RGl-ekgP1XpSXJ50Unj_9OSObgw/exec";
 
+    let allUsers = [];
+
     async function saveUserToSheet(user) {
+      const alreadyExists = allUsers.some(u => u.sub === user.sub);
+      if (alreadyExists) {
+        showSuccessUI();
+        return;
+      }
+
       const res = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          sub: user.sub,
-          name: user.name,
-          email: user.email
-        })
+        body: JSON.stringify(user)
       });
 
       const result = await res.json();
-      console.log("Kayıt sonucu:", result);
+      if (result.success) {
+        showSuccessUI();
+        fetchUsersFromSheet();
+      }
     }
 
     async function fetchUsersFromSheet() {
       const res = await fetch(API_URL);
       const users = await res.json();
+      allUsers = users;
       updateUsersTable(users);
     }
 
@@ -134,10 +142,7 @@
         email: userInfo.email
       };
 
-      saveUserToSheet(user).then(() => {
-        fetchUsersFromSheet();
-        showSuccessUI(); // Giriş sonrası butonu ve mesajı göster
-      });
+      saveUserToSheet(user);
     }
 
     function showSuccessUI() {
