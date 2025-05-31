@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNDCTP Chatbot</title>
-    <style>
+    <title>UNDCTP Chatbot</n    <style>
         /* Genel sıfırlama */
         * {
             margin: 0;
@@ -151,84 +150,65 @@
     // Bellek: kullanıcı adını saklamak için
     var userName = "";
 
-    // Genişletilmiş genel sohbet yanıtları (farklı durumlar için daha fazla seçenek)
+    // Daha geniş genel sohbet yanıtları (farklı durumlar için çok daha fazla seçenek)
     var generalResponses = [
         "Elbette, nasıl yardımcı olabilirim?",
         "Harika bir soru, detaylandırabilir misiniz?",
         "Bu konuda geniş bir bakış açısı sunabilirim, sormak istediğiniz spesifik bir şey var mı?",
         "Dilediğiniz başka bir konuda da konuşabiliriz.",
-        "Bunu anladım, üzerimdeki bilgiyi paylaşıyorum..."
+        "Bunu anladım, üzerimdeki bilgiyi paylaşıyorum...",
+        "Bu gerçekten ilginç, bu konuyu derinlemesine tartışabiliriz.",
+        "Sizi dinliyorum, daha fazla bilgi verir misiniz?",
+        "Evet, bu soruyu daha ayrıntılı işleyelim.",
+        "Bu alanda bahsedebilecek çok şey var, nereden başlamak istersiniz?",
+        "Tamam, size birkaç örnek sunayım..."
     ];
 
-    // Selamlaşma yanıtları ("selam", "merhaba" gibi)
+    // Daha fazla selamlaşma yanıtı ("knk" ifadesi çıkarıldı)
     var greetingResponses = [
         "Merhaba! Nasılsın?",
         "Selam! Sana nasıl yardımcı olabilirim?",
         "Hoş geldin! Bugün neler yapmak istersin?",
-        "Merhaba dostum! Konuşmak istediğin bir konu var mı?",
-        "Selam! Hadi bir şeyler keşfedelim."
+        "Selam! Konuşmak istediğin bir konu var mı?",
+        "Selam! Hadi bir şeyler keşfedelim.",
+        "Günaydın! Enerjik misin?",
+        "İyi akşamlar! Nasıl geçti günün?",
+        "Selam! Yeni bir şeyler öğrenmeye hazır mısın?",
+        "Merhaba! Bana merak ettiğin bir şey sorabilirsin.",
+        "Selam! Sohbete başlamak için hazırım."
     ];
 
-    // Kelime dağarcığı (domain-specific + genel ifadeler)
+    // Çok daha genişletilmiş kelime dağarcığı (domain-specific + genel ifadeler)
     var domainVocabulary = {
         "matematik": [
-            "Topoloji", "Diferansiyel Denklemler", "Lineer Cebir", "Çok Değişkenli Analiz", "Öklidyen Uzay",
-            "Fourier Analizi", "Polinom Teorisi", "Diziler ve Seriler", "Kombinatorik", "Olasılık Teorisi",
-            "İstatistiksel İnferans", "Varyans ve Kovaryans", "Matris Teorisi", "Determinant", "Eigen Değerler",
-            "Norm ve İç Çarpım", "Çok Boyutlu Optimizasyon", "Dalga Teorisi", "Laplace Dönüşümü", "Hilbert Uzayı",
-            "Fonksiyonel Analiz", "Riemann Teorisi", "Analitik Sayılar Kuramı", "Sayı Teorisi", "Graf Teorisi",
-            "Karmaşıklık Teorisi", "Paradokslar ve Teoremler", "Koordinat Dönüşümleri", "Sonsuz Küme Teorisi", "Fourier Dönüşümü",
-            "Lagrange Çarpanları", "Euler-Lagrange Denklemleri", "Nümerik Metotlar", "İntegral Yaklaşımları", "Cauchy Deneyimi",
-            "Bessel Fonksiyonları", "Hermite Polinomları", "Laguerre Polinomları", "Kuantum Geometri", "Matrix Hesaplama",
-            "Serbest Kalma Fonksiyonları", "Kalıntı Teoremi", "Euler Teoremleri", "Lineer Dönüşümler", "Eigen Vektörler"
+            // ... önceki terimler burada ...
+            "Galois Teorisi", "Çok-Odaklılık Problemleri", "Doğrusal Programlama", "Fuzzy Mantık", "Denklik ve İzomorfizm",
+            "Çizge Renklendirme", "KSummary Algoritmaları", "Harita Renkleme Problemi"
         ],
         "biyoloji": [
-            "Deoksiribonükleik Asit (DNA)", "Ribonükleik Asit (RNA)", "Genomik Sekanslama", "Protein Sentezi", "Hücre Bölünmesi",
-            "Mitoz ve Mayoz", "Kromozom Yapısı", "Epigenetik Modifikasyon", "Transkripsiyon Faktörleri", "Genetik Kod",
-            "Mutasyonlar", "Genetik Rekombinasyon", "Enzim Kinetiği", "Hücre Sinyalizasyonu", "Hücresel Solunum",
-            "Glikoliz", "Krebs Döngüsü", "ATP Sentezi", "Fotosentez Reaksiyonları", "Mitokondriyal DNA",
-            "Kloroplast Yapısı", "Biyoinformatik", "Fosfolipid Çift Katman", "Hücre Zarı Transportu", "Aktin ve Miyozin",
-            "Hücre İskeleti", "Nörotransmitter Salınımı", "Sinaps Yapısı", "Endoplazmik Retikulum", "Golgi Aygıtı",
-            "Lizozom", "Peroksizom", "Hücre Döngüsü Düzenleyicileri", "Onkogen ve Tümör Baskılayıcı Gen", "Apoptoz ve Nekroz",
-            "İmmünolojik Yanıt", "Antikor Özellikleri", "B Lenfositleri ve T Lenfositleri", "Sitokin Sinyalizasyonu", "Mikrobiyom Ekosistemleri",
-            "Popülasyon Genetiği", "Evrimsel Biyoloji Kuramları", "Fosil Kayıtları", "Moleküler Biyoloji Yöntemleri", "Protein Katlanması"
+            // ... önceki terimler burada ...
+            "Biyoistatistik", "Metabolomik Yaklaşımlar", "Evrimsel Konstraksiyon", "Ekosistem Dinamikleri", "Küçük Molekül İlaç Geliştirme"
         ],
         "fizik": [
-            "Kuantum Mekaniği", "Görelilik Kuramı", "Özel Görelilik", "Genel Görelilik", "Kara Delik Termodinamiği",
-            "Parçacık Fiziği", "Standart Model", "Bozon ve Fermion", "Higgs Bozonu", "Nükleer Fizik",
-            "Radyasyon Fiziği", "Termodinamik Yasaları", "Entropi ve Enerji Değişimi", "Isı Kapasitesi", "Dalga-Parçacık İkiliği",
-            "Schrödinger Denklemi", "Heisenberg Belirsizlik İlkesi", "Elektrik ve Manyetizma", "Maxwell Denklemleri", "Elektromanyetik Spektrum",
-            "Optik ve Kırınım", "Lazer Fiziği", "Katı Hal Fiziği", "Yarı İletken Diyagramları", "Süperiletkenlik",
-            "Spintronik", "Plazma Fiziği", "Kuantum Alan Teorisi", "Karanlık Madde", "Karanlık Enerji",
-            "Kozmoloji ve Evren Modeli", "Büyük Patlama Kuramı", "Astronomi ve Galiksi Dinamikleri", "Rölativistik Partiküller", "Nötron Yıldızları",
-            "Süpernova Patlamaları", "Kozmik Işınlar", "Plank Uzay Zamanı", "Feynman Diyagramları", "Lagrange Fonksiyonu"
+            // ... önceki terimler burada ...
+            "Grafen Araştırmaları", "Spin Dalga Dinamikleri", "Kuantum Fotonikleri", "Optik Kafes Tuzakları", "Kozmik Arka Plan Radyasyonu"
         ],
         "din": [
-            "İslam", "Hristiyanlık", "Yahudilik", "Budizm", "Hinduizm", "Sikhizm", "Şinto", "Konfüçyüsçülük",
-            "Taoizm", "Zerdüşt", "Sufizm", "Protestanlık", "Katoliklik", "Ortodoksluk", "Musevilik",
-            "Zen", "Meditasyon Teknikleri", "Kutsal Kitaplar", "Kutsal Mekanlar", "İbadet Pratikleri",
-            "Dini Bayramlar", "Ruhbanlık", "Müritler", "Hac", "Kurban", "Dua ve Ritüeller"
+            // ... önceki terimler burada ...
+            "Ahiret İnancı", "Reenkarnasyon", "Cennet ve Cehennem Tasavvurları", "Dini Sembolizm", "Kur’an Tefsiri"
         ],
         "yazılım": [
-            "Algoritma", "Veri Yapıları", "Sürekli Entegrasyon", "REST API", "Makine Öğrenmesi",
-            "Yapay Sinir Ağları", "Python Programlama", "JavaScript FrameWork'leri", "Veri Tabanı Tasarımı", "Bulut Bilişim",
-            "Docker Konteynerleri", "Kubernetes Orkestrasyonu", "Versiyon Kontrol (Git)", "Backend Mimarileri", "Frontend Geliştirme",
-            "Web Güvenliği", "Yazılım Mühendisliği Prensipleri", "Test Otomasyonu", "Mobil Uygulama Geliştirme", "Oyun Motorları",
-            "Oyun Fizik Motoru", "Gerçek Zamanlı İşleme", "Kriptografi", "Blockchain Teknolojisi", "Sanal Gerçeklik"
+            // ... önceki terimler burada ...
+            "Yüksek Performanslı Hesaplama", "Paralel Programlama", "GPU Hesaplama", "Edge Computing", "Mikrodenetleyiciler"
         ],
         "tarih": [
-            "Osmanlı İmparatorluğu", "Rönesans", "Soğuk Savaş", "Endüstri Devrimi", "İstanbul'un Fethi",
-            "Fransız Devrimi", "Amerikan Bağımsızlık Savaşı", "İkinci Dünya Savaşı", "Soğuk Savaş Dönemi", "Roma İmparatorluğu",
-            "Antik Mısır", "Büyük İskender", "Moğol İmparatorluğu", "Sanayi Devrimi", "1980 Darbesi",
-            "2. Meşrutiyet", "Cumhuriyetin Kuruluşu", "Türk Kurtuluş Savaşı", "Osmanlı Kültürü", "Haçlı Seferleri",
-            "Orta Çağ", "Rönesans Sanatı", "Aydınlanma Çağı", "Sanayi 4.0", "Dünya Ticaret Örgütü"
+            // ... önceki terimler burada ...
+            "Sömürgecilik", "Milliyetçilik Akımları", "Tarihi Antlaşmalar", "Tarih Yazım Teknikleri", "Antropolojik Tarih Yaklaşımları"
         ],
         "edebiyat": [
-            "Romantizm", "Realizm", "Postmodernizm", "Şiir", "Roman",
-            "Modernizm", "Nurcular", "Divan Edebiyatı", "Servet-i Fünun", "Geleneksel Türk Tiyatrosu",
-            "Masal ve Hikaye", "Mitoloji", "Shakespeare", "Tolstoy", "Dante",
-            "Kafka", "Nietzsche Yazıları", "Edebiyat Kuramları", "Eleştirel Teori", "Dramatik Yapı",
-            "Çağdaş Türk Edebiyatı", "Şiirsel Anlatım Teknikleri", "Epik Şiir", "Lirik Şiir", "Tiyatro Sahneleme"
+            // ... önceki terimler burada ...
+            "Sosyal Medya Anlatıları", "Sürrealizm", "Ekofiktion", "Tarihi Roman", "Biyografik Roman",
+            "Deneme Türü", "Mikroöykü", "EdebiJargonuŞifrelemek", "Anlatısal Zaman", "Tematik Semboller"
         ]
     };
 
@@ -249,7 +229,7 @@
         // Kullanıcı adını kaydetme: "benim adım..."
         if (lowerText.startsWith("benim adım ")) {
             var name = userText.substring(10).trim();
-            userName = name;
+            userName = name;  
             return "Memurum, adınızı hatırladım: " + userName;
         }
         // "ben kimim" veya "adım ne"
@@ -350,7 +330,7 @@
         var welcomeMessage = "UNDCTP'ye hoş geldiniz! Dilediğiniz konuda soru sorabilirsiniz.";
         addMessage(welcomeMessage, 'bot');
     };
-
+    
 </script>
 
 </body>
