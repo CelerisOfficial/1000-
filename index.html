@@ -15,21 +15,15 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzaOqWJ7t1mHcMOl2spZoqFUHf_yAJ3j62-j2Lvx6wabuAkcDX5jcDbnPbJECN844kvzw/exec"; // Kendi URL'n ile değiştir
 
 // Kullanıcıları GET ile çek
-async function fetchUsers() {
+async function fetchUsersFromSheet() {
   try {
-    const res = await fetch(GAS_URL, { method: 'GET' });
-    if (!res.ok) throw new Error("Sunucudan veri çekilemedi");
-    const users = await res.json();
-    
-    const userList = document.getElementById('userList');
-    userList.innerHTML = "";
-    users.forEach(u => {
-      let li = document.createElement('li');
-      li.textContent = u.name;
-      userList.appendChild(li);
-    });
-  } catch (e) {
-    alert("Kullanıcılar yüklenirken hata: " + e.message);
+    let response = await fetch(GAS_URL);
+    if (!response.ok) throw new Error("Sunucu hatası: " + response.status);
+    let users = await response.json();
+    return users;
+  } catch (err) {
+    console.error("Veri çekilemedi:", err);
+    return [];
   }
 }
 
