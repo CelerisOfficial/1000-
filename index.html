@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UNDCPT Chatbot</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  #chat {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #1f1f1f;
+    border-bottom: 2px solid #333;
+  }
+  .message {
+    margin-bottom: 15px;
+  }
+  .user {
+    color: #4caf50;
+    font-weight: bold;
+  }
+  .bot {
+    color: #2196f3;
+    font-weight: bold;
+  }
+  #inputArea {
+    display: flex;
+    padding: 10px;
+    background: #222;
+  }
+  #userInput {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+  }
+  #sendBtn {
+    margin-left: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #2196f3;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #sendBtn:hover {
+    background: #1976d2;
+  }
+</style>
+</head>
+<body>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input type="text" id="userInput" placeholder="Bir şey yaz..." autofocus />
+  <button id="sendBtn">Gönder</button>
+</div>
+
+<script>
+  const chat = document.getElementById('chat');
+  const userInput = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+
+  // Basit cevaplar sözlüğü
+  const answers = {
+    "merhaba": "Selam knk, nasıl yardımcı olabilirim?",
+    "nasılsın": "Ben hep iyiyim, sen nasılsın?",
+    "sen kimsin": "Ben UNDCPT, senin yapay zeka asistanın!",
+    "ne yapıyorsun": "Sana yardım etmek için buradayım!",
+    "teşekkürler": "Eyvallah, her zaman!",
+    "görüşürüz": "Sonra görüşürüz knk!",
+  };
+
+  function addMessage(text, sender) {
+    const div = document.createElement('div');
+    div.classList.add('message');
+    div.classList.add(sender);
+    div.textContent = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function botResponse(input) {
+    input = input.toLowerCase();
+    for (const key in answers) {
+      if (input.includes(key)) {
+        return answers[key];
+      }
+    }
+    return "Hmm, bunu anlayamadım knk, başka bir şey söyle?";
+  }
+
+  function sendMessage() {
+    const message = userInput.value.trim();
+    if (!message) return;
+    addMessage("Sen: " + message, 'user');
+    const response = botResponse(message);
+    setTimeout(() => addMessage("UNDCPT: " + response, 'bot'), 500);
+    userInput.value = '';
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // Başlangıç mesajı
+  addMessage("UNDCPT: Selam knk! Ben buradayım, istediğin bir şey sorabilirsin.", 'bot');
+</script>
+
+</body>
+</html>
