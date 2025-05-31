@@ -1,147 +1,77 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Kullanicilar</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; text-align: center; background: #f2f2f2; }
-    h2 { margin-top: 30px; }
-    table { margin: auto; border-collapse: collapse; width: 80%; max-width: 800px; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
-    th, td { padding: 12px; border: 1px solid #ccc; }
-    th { background: #eee; }
-    #userCount { color: green; }
-    #successMessage, #writeButton { margin-top: 20px; display: none; }
-    #writeButton {
-      padding: 10px 20px; font-size: 16px; background: #4CAF50; color: white; border: none;
-      cursor: pointer; border-radius: 6px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Kullanıcı Kaydetme</title>
 </head>
 <body>
 
-  <div id="googleSignInArea">
-    <div id="g_id_onload"
-      data-client_id="537474382538-bp4g5n0ute985jq2qs2lbestg82cgid5.apps.googleusercontent.com"
-      data-callback="handleCredentialResponse"
-      data-auto_prompt="true"></div>
+<input type="text" id="nameInput" placeholder="İsminizi yazın" />
+<button id="saveBtn">Kaydet</button>
 
-    <div class="g_id_signin"
-      data-type="standard"
-      data-size="large"
-      data-theme="outline"
-      data-text="sign_in_with"
-      data-shape="rectangular"
-      data-logo_alignment="left"></div>
-  </div>
+<ul id="userList"></ul>
 
-  <div id="nameInputArea" style="display:none; margin-top:20px;">
-    <input type="text" id="customName" placeholder="Adını yaz" style="padding:8px; font-size:16px;" />
-    <button onclick="submitCustomName()" style="padding:8px 16px; font-size:16px;">Kaydet</button>
-  </div>
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxIWWlts6W6xZ-M2oI33yUlg8jzQbsxQCwWfVnif4DCDNdJW7wfsj7iYv7pKb7wWmLC4g/exec"; // Kendi URL'n ile değiştir
 
-  <div id="successMessage">✅ Kayıt başarılı!</div>
-  <button id="writeButton">Yaz</button>
+// Kullanıcıları GET ile çek
+async function fetchUsers() {
+  try {
+    const res = await fetch(GAS_URL, { method: 'GET' });
+    if (!res.ok) throw new Error("Sunucudan veri çekilemedi");
+    const users = await res.json();
+    
+    const userList = document.getElementById('userList');
+    userList.innerHTML = "";
+    users.forEach(u => {
+      let li = document.createElement('li');
+      li.textContent = u.name;
+      userList.appendChild(li);
+    });
+  } catch (e) {
+    alert("Kullanıcılar yüklenirken hata: " + e.message);
+  }
+}
 
-  <h2>Kayıt Olanlar <span id="userCount">0/1000</span></h2>
-  <table>
-    <thead>
-      <tr><th>#</th><th>İsim</th><th>Email</th></tr>
-    </thead>
-    <tbody id="userTable"></tbody>
-  </table>
-
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwqM7dE6MjFT9pP-377gmyzDqCT6qe_LGU5xcabh8OpUjVQ1JBYuTOQKKcf-zKVeDglJA/exec"; // Buraya Apps Script URL'nizi koy
-
-    let currentUser = null;
-    let allUsers = [];
-
-    // Google giriş sonrası token decode
-    function handleCredentialResponse(response) {
-      const userInfo = jwt_decode(response.credential);
-      currentUser = {
-        sub: userInfo.sub,
-        name: "",  // İsim kullanıcıdan alınacak
-        email: userInfo.email
-      };
-
-      // Google Giriş butonlarını gizle, isim yazma alanını aç
-      document.getElementById("googleSignInArea").style.display = "none";
-      document.getElementById("nameInputArea").style.display = "block";
+// Yeni kullanıcı ekle POST ile
+async function saveUser(name) {
+  try {
+    if (!name) {
+      alert("İsim boş olamaz");
+      return;
     }
-
-    // İsim gönder
-    async function submitCustomName() {
-      const customName = document.getElementById("customName").value.trim();
-      if (!customName) {
-        alert("Lütfen ismini yaz.");
-        return;
-      }
-
-      currentUser.name = customName;
-      await saveUserToSheet(currentUser);
-      document.getElementById("nameInputArea").style.display = "none";
+    
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    
+    if (!res.ok) throw new Error("Kullanıcı kaydedilemedi");
+    const result = await res.json();
+    
+    if (result.error) {
+      alert("Sunucu hatası: " + result.error);
+      return;
     }
+    
+    alert("Kullanıcı başarıyla kaydedildi!");
+    fetchUsers(); // Listeyi yenile
+  } catch (e) {
+    alert("Kaydetme işlemi başarısız: " + e.message);
+  }
+}
 
-    async function saveUserToSheet(user) {
-      // Aynı sub daha önce var mı kontrol et
-      const alreadyExists = allUsers.some(u => u.sub === user.sub);
-      if (alreadyExists) {
-        showSuccessUI();
-        return;
-      }
+// Buton tıklama
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const name = document.getElementById('nameInput').value.trim();
+  saveUser(name);
+});
 
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user)
-      });
+// Sayfa açılır açılmaz kullanıcıları yükle
+window.onload = fetchUsers;
 
-      const result = await res.json();
-      console.log("Kayıt sonucu:", result);
-      if (result.success) {
-        await fetchUsersFromSheet();
-        showSuccessUI();
-      } else {
-        alert("Kayıt sırasında hata: " + (result.error || "Bilinmeyen hata"));
-      }
-    }
-
-    async function fetchUsersFromSheet() {
-      const res = await fetch(API_URL);
-      const users = await res.json();
-      allUsers = users;
-      updateUsersTable(users);
-    }
-
-    function updateUsersTable(users) {
-      const table = document.getElementById("userTable");
-      table.innerHTML = "";
-
-      users.forEach((user, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-        `;
-        table.appendChild(row);
-      });
-
-      document.getElementById("userCount").innerText = `${users.length}/1000`;
-    }
-
-    function showSuccessUI() {
-      document.getElementById("successMessage").style.display = "block";
-      document.getElementById("writeButton").style.display = "inline-block";
-    }
-
-    window.onload = () => {
-      fetchUsersFromSheet();
-    };
-  </script>
+</script>
 
 </body>
 </html>
