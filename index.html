@@ -20,8 +20,8 @@
     color: #eee;
   }
   #container {
-    width: 700px;
-    height: 700px;
+    width: 750px;
+    height: 720px;
     background: #12172f;
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.7);
@@ -30,48 +30,48 @@
     overflow: hidden;
   }
   #header {
-    padding: 20px;
+    padding: 22px;
     background: #152445;
     text-align: center;
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 700;
-    letter-spacing: 1.2px;
+    letter-spacing: 1.3px;
     border-bottom: 2px solid #2f3a66;
     user-select: none;
   }
   #chat {
     flex: 1;
-    padding: 25px;
+    padding: 26px 28px;
     overflow-y: auto;
     scroll-behavior: smooth;
     background: #1c294b;
-    font-size: 17px;
-    line-height: 1.5;
+    font-size: 18px;
+    line-height: 1.55;
   }
   .message {
-    max-width: 70%;
-    padding: 14px 22px;
-    margin-bottom: 18px;
-    border-radius: 25px;
-    line-height: 1.4;
+    max-width: 75%;
+    padding: 16px 24px;
+    margin-bottom: 20px;
+    border-radius: 28px;
+    line-height: 1.45;
     word-wrap: break-word;
-    font-size: 16px;
+    font-size: 17px;
     position: relative;
     opacity: 0;
     animation: fadeIn 0.3s forwards;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.45);
   }
   .user {
     background: #4caf50;
     color: white;
     align-self: flex-end;
-    border-bottom-right-radius: 5px;
+    border-bottom-right-radius: 7px;
   }
   .bot {
     background: #2979ff;
     color: white;
     align-self: flex-start;
-    border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 7px;
   }
   @keyframes fadeIn {
     to {
@@ -80,15 +80,15 @@
   }
   #inputArea {
     display: flex;
-    padding: 18px 22px;
+    padding: 20px 28px;
     background: #152445;
     border-top: 2px solid #2f3a66;
   }
   #userInput {
     flex: 1;
-    padding: 16px 22px;
-    font-size: 18px;
-    border-radius: 30px;
+    padding: 18px 26px;
+    font-size: 19px;
+    border-radius: 36px;
     border: none;
     outline: none;
     background: #26386f;
@@ -106,10 +106,10 @@
     border: none;
     color: white;
     font-weight: 700;
-    font-size: 18px;
-    padding: 0 28px;
-    margin-left: 15px;
-    border-radius: 30px;
+    font-size: 19px;
+    padding: 0 32px;
+    margin-left: 20px;
+    border-radius: 36px;
     cursor: pointer;
     transition: background 0.3s ease;
   }
@@ -118,24 +118,24 @@
   }
   /* Scrollbar */
   #chat::-webkit-scrollbar {
-    width: 10px;
+    width: 11px;
   }
   #chat::-webkit-scrollbar-track {
     background: #1c294b;
   }
   #chat::-webkit-scrollbar-thumb {
     background: #4caf50;
-    border-radius: 20px;
+    border-radius: 22px;
   }
 </style>
 </head>
 <body>
 
 <div id="container">
-  <div id="header">UNDCPT - Yapay Zeka Asistanın</div>
+  <div id="header">UNDCPT - Gelişmiş Yapay Zeka Asistanın</div>
   <div id="chat"></div>
   <div id="inputArea">
-    <input type="text" id="userInput" placeholder="Bi şey yaz, knk..." autocomplete="off" />
+    <input type="text" id="userInput" placeholder="Bir şey yaz, knk..." autocomplete="off" />
     <button id="sendBtn">Gönder</button>
   </div>
 </div>
@@ -145,18 +145,18 @@
   const userInput = document.getElementById('userInput');
   const sendBtn = document.getElementById('sendBtn');
 
-  // Daha geniş kelime veritabanı (küçük varyasyonlarla)
-  const responses = [
+  // Genişletilmiş kelime ve cevap veritabanı
+  const responseDB = [
     {
-      keywords: ["merhaba", "selam", "selamm", "hey", "hello", "hallo", "helo"],
+      keywords: ["merhaba", "selam", "selamm", "selamknk", "hey", "hello", "hallo", "helo", "yo", "hi"],
       answers: [
         "Selam knk, naber?",
-        "Hey! Nasılsın bakalım?",
+        "Hey! Nasılsın?",
         "Selam dostum, ne haber?"
       ]
     },
     {
-      keywords: ["nasılsın", "nasilsin", "napıyorsun", "napıyon", "naber", "iyimisin", "naber knk", "napıyon", "napiyon"],
+      keywords: ["nasılsın", "nasilsin", "napıyorsun", "napıyon", "naber", "iyimisin", "naber knk", "napıyon", "napiyon", "n'apıyorsun", "ne haber"],
       answers: [
         "Ben hep iyiyim, sen nasılsın?",
         "İyiyim knk, sen nasılsın?",
@@ -164,7 +164,7 @@
       ]
     },
     {
-      keywords: ["sen kimsin", "kim o", "kim bu", "adın ne", "ismin ne", "adın"],
+      keywords: ["sen kimsin", "kim o", "kim bu", "adın ne", "ismin ne", "adın", "kimsin"],
       answers: [
         "Ben UNDCPT, senin yapay zeka asistanın!",
         "UNDCPT burda knk, sana yardımcı olmak için!",
@@ -172,7 +172,7 @@
       ]
     },
     {
-      keywords: ["ne yapıyorsun", "ne yapıyorsun?", "napiyorsun", "napiyon", "napıyorsun"],
+      keywords: ["ne yapıyorsun", "ne yapıyorsun?", "napiyorsun", "napiyon", "napıyorsun", "ne yapalım", "ne var ne yok"],
       answers: [
         "Sana yardım etmek için buradayım!",
         "Buradayım, sorularını bekliyorum!",
@@ -207,15 +207,24 @@
       keywords: ["hava durumu", "hava nasıl", "hava nasil", "hava durumu nedir"],
       answers: [
         "Hava durumunu direkt veremem ama dışarı çıkıp kontrol etmek iyi fikir :)",
-        "Şu an hava durumuna bakamıyorum ama umarım güzel!",
+        "Şu an hava durumuna bakamıyorum ama umarım güzel!"
       ]
     },
     {
-      keywords: ["seni kim yaptı", "kimi yaptın", "kim yarattı", "kim yaptı"],
+      keywords: ["seni kim yaptı", "kimi yaptın", "kim yarattı", "kim yaptı", "yaratıcı", "yapan kim"],
       answers: [
         "Beni Under adlı kral yaptı!",
         "Under benim yaratıcım, kanka :)",
         "Under bu yapay zekayı tasarladı."
+      ]
+    },
+    // Küfür ve olumsuz kelimeler
+    {
+      keywords: ["salak", "aptal", "gerizekalı", "orospu", "orospu çocuğu", "piç", "amk", "siktir", "siktiğim", "yarrak", "orospu çocuğu", "ananı sikiyim", "ananı", "ananı sikim", "piç kurusu", "kahpe", "mal", "yarak", "amq", "sikeyim", "aq", "amına", "amına koyayım", "yarram", "pezevenk", "göt", "götveren", "götünü sikeyim"],
+      answers: [
+        "Küfür yok knk, saygılı olalım :)",
+        "Lütfen küfür etme, burası temiz yer!",
+        "Küfürü kapatalım knk, daha güzel sohbet edelim."
       ]
     }
   ];
@@ -236,19 +245,51 @@
       .trim();
   }
 
+  // Çoklu kelime kontrolü
+  function includesKeyword(input, keyword) {
+    // Kelime eşleşmelerinde boşluk veya baş/son sınırı önemli
+    // Ör: "nasılsın" tam kelime olarak geçmeli.
+    // Ama burada biraz gevşek yapacağız.
+    return input.indexOf(keyword) !== -1;
+  }
+
   function findResponse(input) {
     input = cleanInput(input);
-    for (const entry of responses) {
-      for (const key of entry.keywords) {
-        if (input.includes(key)) {
+    
+    // Küfür öncelikli kontrol
+    for (const entry of responseDB) {
+      if (entry.keywords.some(kw => includesKeyword(input, kw))) {
+        if (entry.keywords.some(kw => isInsult(kw))) {
+          // Küfürlü cevap
           const ans = entry.answers[Math.floor(Math.random() * entry.answers.length)];
           return ans;
         }
       }
     }
-    // Daha esnek cevap
-    if (input.length < 3) return "Biraz daha uzun yaz knk :)";
+
+    // Normal cevaplar
+    for (const entry of responseDB) {
+      if (entry.keywords.some(kw => includesKeyword(input, kw))) {
+        const ans = entry.answers[Math.floor(Math.random() * entry.answers.length)];
+        return ans;
+      }
+    }
+
+    // Çok kısa ve anlamsız mesajlara cevap
+    if (input.length < 3) return "Biaz daha uzun yaz knk :)";
+
+    // Genel fallback cevap
     return "Bunu tam anlayamadım ama yine de buradayım, başka bir şey sorabilirsin!";
+  }
+
+  // Küfürleri tespit eden fonksiyon
+  function isInsult(word) {
+    const insults = [
+      "salak", "aptal", "gerizekalı", "orospu", "orospu çocuğu", "piç", "amk", "siktir", "siktiğim",
+      "yarrak", "ananı sikiyim", "ananı", "ananı sikim", "piç kurusu", "kahpe", "mal", "yarak", "amq",
+      "sikeyim", "aq", "amına", "amına koyayım", "yarram", "pezevenk", "göt", "götveren", "götünü sikeyim"
+    ];
+    return insults.includes(word);
   }
 
   function handleSend() {
