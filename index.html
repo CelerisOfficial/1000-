@@ -4,8 +4,27 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNDCTP Chatbot</title>
+    <title>UNDCTP 0.1V</title>
     <style>
+        /* Temel renk değişkenleri */
+        :root {
+            --bg-color: #343541;
+            --container-bg: #40414f;
+            --header-bg: #343541;
+            --input-bg: #444654;
+            --text-color: #e5e5e5;
+            --user-bubble: #19a974;
+            --bot-bubble: #444654;
+        }
+        .light-theme {
+            --bg-color: #f4f4f4;
+            --container-bg: #ffffff;
+            --header-bg: #f0f0f0;
+            --input-bg: #e0e0e0;
+            --text-color: #000000;
+            --user-bubble: #BBDEFB;
+            --bot-bubble: #E0E0E0;
+        }
         /* Genel sıfırlama */
         * {
             margin: 0;
@@ -14,31 +33,37 @@
         }
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #343541;
+            background-color: var(--bg-color);
             width: 100vw;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #e5e5e5;
+            color: var(--text-color);
         }
         .chat-container {
             width: 90vw;
             height: 90vh;
-            background-color: #40414f;
+            background-color: var(--container-bg);
             border-radius: 8px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
         .chat-header {
-            background-color: #343541;
-            color: #fafafa;
-            text-align: center;
+            background-color: var(--header-bg);
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 16px;
             font-size: 1.5rem;
             font-weight: bold;
             border-bottom: 1px solid #565666;
+        }
+        .header-controls {
+            display: flex;
+            gap: 8px;
         }
         .chat-messages {
             flex: 1;
@@ -47,7 +72,7 @@
         }
         .chat-input-area {
             display: flex;
-            background-color: #343541;
+            background-color: var(--header-bg);
             border-top: 1px solid #565666;
         }
         .chat-input {
@@ -56,8 +81,8 @@
             border: none;
             font-size: 1rem;
             font-weight: 600;
-            background-color: #444654;
-            color: #e5e5e5;
+            background-color: var(--input-bg);
+            color: var(--text-color);
         }
         .chat-input::placeholder {
             color: #999;
@@ -96,16 +121,16 @@
             white-space: pre-wrap;
         }
         .message.user .bubble {
-            background-color: #19a974;
-            color: #ffffff;
+            background-color: var(--user-bubble);
+            color: #000000;
             border-bottom-right-radius: 4px;
             border-bottom-left-radius: 12px;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
         }
         .message.bot .bubble {
-            background-color: #444654;
-            color: #e5e5e5;
+            background-color: var(--bot-bubble);
+            color: var(--text-color);
             border-bottom-left-radius: 4px;
             border-bottom-right-radius: 12px;
             border-top-left-radius: 12px;
@@ -131,13 +156,20 @@
                 padding: 10px 16px;
             }
         }
-        /* Boş yorum satırları ve satır sayısını artırmak için */
     </style>
 </head>
 <body>
-
 <div class="chat-container">
-    <div class="chat-header">UNDCTP</div>
+    <div class="chat-header">
+        <span>UNDCTP 0.1V</span>
+        <div class="header-controls">
+            <select id="languageSelect">
+                <option value="tr">Türkçe</option>
+                <option value="en">English</option>
+            </select>
+            <button id="themeToggle">Light</button>
+        </div>
+    </div>
     <div class="chat-messages" id="chatMessages">
         <!-- Mesajlar burada görünecek -->
     </div>
@@ -146,147 +178,199 @@
         <button id="sendBtn" class="chat-send-btn">Gönder</button>
     </div>
 </div>
-
 <script>
-    // Bellek: kullanıcı adını saklamak için
     var userName = "";
-
-    // Daha geniş genel sohbet yanıtları (farklı durumlar için çok daha fazla seçenek)
-    var generalResponses = [
-        "Elbette, nasıl yardımcı olabilirim?",
-        "Harika bir soru, detaylandırabilir misiniz?",
-        "Bu konuda geniş bir bakış açısı sunabilirim, sormak istediğiniz spesifik bir şey var mı?",
-        "Dilediğiniz başka bir konuda da konuşabiliriz.",
-        "Bunu anladım, üzerimdeki bilgiyi paylaşıyorum...",
-        "Bu gerçekten ilginç, bu konuyu derinlemesine tartışabiliriz.",
-        "Sizi dinliyorum, daha fazla bilgi verir misiniz?",
-        "Evet, bu soruyu daha ayrıntılı işleyelim.",
-        "Bu alanda bahsedebilecek çok şey var, nereden başlamak istersiniz?",
-        "Tamam, size birkaç örnek sunayım..."
-    ];
-
-    // Daha fazla selamlaşma yanıtı ("knk" ifadesi çıkarıldı)
-    var greetingResponses = [
-        "Merhaba! Nasılsın?",
-        "Selam! Sana nasıl yardımcı olabilirim?",
-        "Hoş geldin! Bugün neler yapmak istersin?",
-        "Selam! Konuşmak istediğin bir konu var mı?",
-        "Selam! Hadi bir şeyler keşfedelim.",
-        "Günaydın! Enerjik misin?",
-        "İyi akşamlar! Nasıl geçti günün?",
-        "Selam! Yeni bir şeyler öğrenmeye hazır mısın?",
-        "Merhaba! Bana merak ettiğin bir şey sorabilirsin.",
-        "Selam! Sohbete başlamak için hazırım."
-    ];
-
-    // Çok daha genişletilmiş kelime dağarcığı (domain-specific + genel ifadeler)
-    var domainVocabulary = {
-        "matematik": [
-            "Galois Teorisi", "Çok-Odaklılık Problemleri", "Doğrusal Programlama", "Fuzzy Mantık", "Denklik ve İzomorfizm",
-            "Çizge Renklendirme", "KSummary Algoritmaları", "Harita Renkleme Problemi"
-        ],
-        "biyoloji": [
-            "Biyoistatistik", "Metabolomik Yaklaşımlar", "Evrimsel Konstraksiyon", "Ekosistem Dinamikleri", "Küçük Molekül İlaç Geliştirme"
-        ],
-        "fizik": [
-            "Grafen Araştırmaları", "Spin Dalga Dinamikleri", "Kuantum Fotonikleri", "Optik Kafes Tuzakları", "Kozmik Arka Plan Radyasyonu"
-        ],
-        "din": [
-            "Ahiret İnancı", "Reenkarnasyon", "Cennet ve Cehennem Tasavvurları", "Dini Sembolizm", "Kur’an Tefsiri"
-        ],
-        "yazılım": [
-            "Yüksek Performanslı Hesaplama", "Paralel Programlama", "GPU Hesaplama", "Edge Computing", "Mikrodenetleyiciler"
-        ],
-        "tarih": [
-            "Sömürgecilik", "Milliyetçilik Akımları", "Tarihi Antlaşmalar", "Tarih Yazım Teknikleri", "Antropolojik Tarih Yaklaşımları"
-        ],
-        "edebiyat": [
-            "Sosyal Medya Anlatıları", "Sürrealizm", "Ekofiktion", "Tarihi Roman", "Biyografik Roman",
-            "Deneme Türü", "Mikroöykü", "EdebiJargonuŞifrelemek", "Anlatısal Zaman", "Tematik Semboller"
-        ]
+    var language = 'tr';
+    var isLight = false;
+    
+    var responses = {
+        tr: {
+            general: [
+                "Elbette, nasıl yardımcı olabilirim?",
+                "Harika bir soru, detaylandırabilir misiniz?",
+                "Bu konuda geniş bir bakış açısı sunabilirim, sormak istediğiniz spesifik bir şey var mı?",
+                "Dilediğiniz başka bir konuda da konuşabiliriz.",
+                "Bunu anladım, üzerimdeki bilgiyi paylaşıyorum...",
+                "Bu gerçekten ilginç, bu konuyu derinlemesine tartışabiliriz.",
+                "Sizi dinliyorum, daha fazla bilgi verir misiniz?",
+                "Evet, bu soruyu daha ayrıntılı işleyelim.",
+                "Bu alanda bahsedebilecek çok şey var, nereden başlamak istersiniz?",
+                "Tamam, size birkaç örnek sunayım..."
+            ],
+            greetings: [
+                "Merhaba! Nasılsınız?",
+                "Selam! Nasıl yardımcı olabilirim?",
+                "Hoş geldiniz! Bugün neler yapmak istersiniz?",
+                "Selam! Konuşmak istediğiniz bir konu var mı?",
+                "Selam! Hadi bir şeyler keşfedelim.",
+                "Günaydın! Enerjik misiniz?",
+                "İyi akşamlar! Gününüz nasıl geçti?",
+                "Selam! Yeni bir şeyler öğrenmeye hazır mısınız?",
+                "Merhaba! Merak ettiğiniz bir şey sorabilirsiniz.",
+                "Selam! Sohbete başlamak için hazırım."
+            ],
+            placeholders: "Mesajınızı yazın...",
+            sendButton: "Gönder",
+            welcome: "UNDCTP'ye hoş geldiniz! Dilediğiniz konuda soru sorabilirsiniz."
+        },
+        en: {
+            general: [
+                "Sure, how can I assist you?",
+                "Great question, could you elaborate?",
+                "I can provide a broad perspective on this topic, do you have something specific in mind?",
+                "We can talk about any other topic as well.",
+                "Understood, sharing some knowledge...",
+                "That’s really interesting, we can dive deep into this topic.",
+                "I’m listening, could you provide more details?",
+                "Certainly, let’s explore this question in detail.",
+                "There’s a lot to discuss in this area, where would you like to start?",
+                "Alright, here are a few examples..."
+            ],
+            greetings: [
+                "Hello! How are you?",
+                "Hi! How can I help you?",
+                "Welcome! What would you like to do today?",
+                "Hi! Do you have a topic in mind?",
+                "Hi there! Let’s explore something.",
+                "Good morning! Are you energetic today?",
+                "Good evening! How was your day?",
+                "Hi! Ready to learn something new?",
+                "Hello! Feel free to ask any question.",
+                "Hi! I’m ready when you are."
+            ],
+            placeholders: "Type your message...",
+            sendButton: "Send",
+            welcome: "Welcome to UNDCTP! Ask me anything."
+        }
     };
 
-    // Kullanıcının sorusunu al ve yanıt oluştur
+    var domainVocabulary = {
+        tr: {
+            matematik: ["Galois Teorisi", "Çok-Odaklılık Problemleri", "Doğrusal Programlama", "Fuzzy Mantık", "Denklik ve İzomorfizm", "Çizge Renklendirme", "KSummary Algoritmaları", "Harita Renkleme Problemi"],
+            biyoloji: ["Biyoistatistik", "Metabolomik Yaklaşımlar", "Evrimsel Konstraksiyon", "Ekosistem Dinamikleri", "Küçük Molekül İlaç Geliştirme"],
+            fizik: ["Grafen Araştırmaları", "Spin Dalga Dinamikleri", "Kuantum Fotonikleri", "Optik Kafes Tuzakları", "Kozmik Arka Plan Radyasyonu"],
+            din: ["Ahiret İnancı", "Reenkarnasyon", "Cennet ve Cehennem Tasavvurları", "Dini Sembolizm", "Kur’an Tefsiri"],
+            yazilim: ["Yüksek Performanslı Hesaplama", "Paralel Programlama", "GPU Hesaplama", "Edge Computing", "Mikrodenetleyiciler"],
+            tarih: ["Sömürgecilik", "Milliyetçilik Akımları", "Tarihi Antlaşmalar", "Tarih Yazım Teknikleri", "Antropolojik Tarih Yaklaşımları"],
+            edebiyat: ["Sosyal Medya Anlatıları", "Sürrealizm", "Ekofiktion", "Tarihi Roman", "Biyografik Roman", "Deneme Türü", "Mikroöykü", "EdebiJargonuŞifrelemek", "Anlatısal Zaman", "Tematik Semboller"]
+        },
+        en: {
+            mathematics: ["Galois Theory", "Multiplicative Problems", "Linear Programming", "Fuzzy Logic", "Equivalence and Isomorphism", "Graph Coloring", "K-Summary Algorithms", "Map Coloring Problem"],
+            biology: ["Biostatistics", "Metabolomic Approaches", "Evolutionary Construction", "Ecosystem Dynamics", "Small Molecule Drug Development"],
+            physics: ["Graphene Research", "Spin Wave Dynamics", "Quantum Photonics", "Optical Lattice Traps", "Cosmic Background Radiation"],
+            religion: ["Belief in Afterlife", "Reincarnation", "Heaven and Hell Concepts", "Religious Symbolism", "Interpretation of Sacred Texts"],
+            software: ["High Performance Computing", "Parallel Programming", "GPU Computing", "Edge Computing", "Microcontrollers"],
+            history: ["Colonialism", "Nationalism Movements", "Historical Treaties", "Historiography Techniques", "Anthropological Approaches to History"],
+            literature: ["Social Media Narratives", "Surrealism", "Eco-fiction", "Historical Fiction", "Biographical Novel", "Essay Genre", "Microfiction", "Encrypting Literary Jargon", "Narrative Time", "Thematic Symbols"]
+        }
+    };
+
+    function updatePlaceholder() {
+        var input = document.getElementById('userInput');
+        input.placeholder = responses[language].placeholders;
+        document.getElementById('sendBtn').innerText = responses[language].sendButton;
+    }
+
+    function toggleTheme() {
+        isLight = !isLight;
+        if (isLight) {
+            document.body.classList.add('light-theme');
+            document.getElementById('themeToggle').innerText = 'Dark';
+        } else {
+            document.body.classList.remove('light-theme');
+            document.getElementById('themeToggle').innerText = 'Light';
+        }
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    document.getElementById('languageSelect').addEventListener('change', function() {
+        language = this.value;
+        updatePlaceholder();
+        document.getElementById('chatMessages').innerHTML = '';
+        var welcome = responses[language].welcome;
+        addMessage(welcome, 'bot');
+    });
+
     function generateResponse(userText) {
         var lowerText = userText.toLowerCase();
-
         // Selamlaşma kontrolü
-        var greetings = ["merhaba", "selam", "sa", "hello", "hi", "günaydın", "iyi akşamlar"];
-        for (var g = 0; g < greetings.length; g++) {
-            if (lowerText === greetings[g] || lowerText.includes(greetings[g] + " ") || lowerText.startsWith(greetings[g] + ".") || lowerText.startsWith(greetings[g] + "!")) {
-                return greetingResponses[Math.floor(Math.random() * greetingResponses.length)];
+        var greetList = responses[language].greetings;
+        for (var i = 0; i < greetList.length; i++) {
+            if (lowerText === greetList[i].toLowerCase() || lowerText.includes(greetList[i].toLowerCase() + " ") || lowerText.startsWith(greetList[i].toLowerCase() + ".") || lowerText.startsWith(greetList[i].toLowerCase() + "!")) {
+                return greetList[Math.floor(Math.random() * greetList.length)];
             }
         }
-
-        var response = generalResponses[Math.floor(Math.random() * generalResponses.length)];
-
-        // Kullanıcı adını kaydetme: "benim adım..."
-        if (lowerText.startsWith("benim adım ")) {
-            var name = userText.substring(10).trim();
-            userName = name;  
-            return "Memurum, adınızı hatırladım: " + userName;
-        }
-        // "ben kimim" veya "adım ne"
-        if (lowerText.includes("ben kimim") || lowerText.includes("adım ne")) {
-            if (userName !== "") {
-                return "Adınız: " + userName;
-            } else {
-                return "Adınızı henüz kaydetmedim. 'Benim adım ...' şeklinde söyleyebilirsiniz.";
+        var response = responses[language].general[Math.floor(Math.random() * responses[language].general.length)];
+        // Kullanıcı adını kaydetme
+        if (language === 'tr') {
+            if (lowerText.startsWith("benim adım ")) {
+                userName = userText.substring(10).trim();
+                return "Adınızı hatırladım: " + userName;
             }
-        }
-
-        // Kimlik/soru yanıtları
-        if (lowerText.includes("sen kimsin")) {
-            return "Ben UNDCTP adlı bir yapay zekayım.";
-        }
-        if (lowerText.includes("sen robot musun")) {
-            return "Hayır, ben bir yapay zekâyım, fiziksel bir robot değilim.";
-        }
-        if (lowerText.includes("sen erkek misin") || lowerText.includes("sen bekar misin")) {
-            return "Benim cinsiyetim veya medeni halim yok, ben sadece bir yapay zekayım.";
-        }
-        if (lowerText.includes("sen insan misin")) {
-            return "Hayır, ben bir yapay zekayım, insan değilim.";
-        }
-        if (lowerText.includes("sen yemek yer misin")) {
-            return "Ben bir yapay zekayım, fiziksel bir vücudum olmadığı için yemek yemem.";
-        }
-        if (lowerText.includes("sen su içer misin")) {
-            return "Ben bir yapay zekayım, su içme ihtiyacım yok.";
-        }
-
-        // Illegal / suça yönelik sorular
-        var illegalKeywords = ["illegal", "suç", "kaçak", "uyuşturucu", "bomb", "hırsızlık", "dolandırıcılık", "hack", "yasadışı"];
-        for (var i = 0; i < illegalKeywords.length; i++) {
-            if (lowerText.includes(illegalKeywords[i])) {
-                return "Bu konu hakkında cevap veremem, bu suç. Lütfen böyle işlere girişmeyin.";
+            if (lowerText.includes("ben kimim") || lowerText.includes("adım ne")) {
+                if (userName !== "") return "Adınız: " + userName;
+                else return "Adınızı henüz kaydetmedim. 'Benim adım ...' şeklinde söyleyebilirsiniz.";
             }
-        }
-
-        // Domain eşleştirme ve kelime önerme (term bazlı kontrol)
-        for (var domain in domainVocabulary) {
-            if (lowerText.includes(domain)) {
-                var terms = domainVocabulary[domain];
-                var term = terms[Math.floor(Math.random() * terms.length)];
-                return domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + term + "'. Bu konuda daha ayrıntılı bilgi edinebilirsiniz.";
+            if (lowerText.includes("sen kimsin")) return "Ben UNDCTP adlı bir yapay zekayım.";
+            if (lowerText.includes("sen robot musun")) return "Hayır, ben bir yapay zekayım, robot değilim.";
+            if (lowerText.includes("sen insan misin")) return "Hayır, ben bir yapay zekayım, insan değilim.";
+            if (lowerText.includes("sen yemek yer misin")) return "Ben yemek yemem, fiziksel bir varlığım yok.";
+            if (lowerText.includes("sen su içer misin")) return "Su içmem, fiziksel değilim.";
+            var illegalTr = ["illegal", "suç", "kaçak", "uyuşturucu", "bomb", "hırsızlık", "dolandırıcılık", "hack", "yasadışı"];
+            for (var k = 0; k < illegalTr.length; k++) {
+                if (lowerText.includes(illegalTr[k])) return "Bu konuya cevap veremem, bu suç. Lütfen böyle işlere girişmeyin.";
             }
-            var termsList = domainVocabulary[domain];
-            for (var j = 0; j < termsList.length; j++) {
-                var lowerTerm = termsList[j].toLowerCase();
-                if (lowerText.includes(lowerTerm)) {
-                    return domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + termsList[j] + "'. Bu konuda daha ayrıntılı bilgi edinebilirsiniz.";
+            var vocab = domainVocabulary.tr;
+            for (var domain in vocab) {
+                if (lowerText.includes(domain)) {
+                    var terms = vocab[domain];
+                    var term = terms[Math.floor(Math.random() * terms.length)];
+                    return domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + term + "'.";
+                }
+                for (var j = 0; j < vocab[domain].length; j++) {
+                    if (lowerText.includes(vocab[domain][j].toLowerCase())) {
+                        return domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + vocab[domain][j] + "'.";
+                    }
+                }
+            }
+        } else {
+            if (lowerText.startsWith("my name is ")) {
+                userName = userText.substring(11).trim();
+                return "Got it, I will remember your name: " + userName;
+            }
+            if (lowerText.includes("who am i") || lowerText.includes("what is my name")) {
+                if (userName !== "") return "Your name is: " + userName;
+                else return "I haven't saved your name yet. Please tell me 'My name is ...'";
+            }
+            if (lowerText.includes("who are you")) return "I am UNDCTP, an AI chatbot.";
+            if (lowerText.includes("are you a robot")) return "No, I am an AI, not a physical robot.";
+            if (lowerText.includes("are you human")) return "No, I am an AI, not human.";
+            if (lowerText.includes("do you eat")) return "I don't eat, I don't have a physical body.";
+            if (lowerText.includes("do you drink")) return "I don't drink, I am virtual.";
+            var illegalEn = ["illegal", "crime", "smuggle", "drugs", "bomb", "theft", "fraud", "hack", "unlawful"];
+            for (var k = 0; k < illegalEn.length; k++) {
+                if (lowerText.includes(illegalEn[k])) return "I cannot answer that, it's illegal. Please do not engage in such activities.";
+            }
+            var vocabEn = domainVocabulary.en;
+            for (var domain in vocabEn) {
+                if (lowerText.includes(domain)) {
+                    var terms = vocabEn[domain];
+                    var term = terms[Math.floor(Math.random() * terms.length)];
+                    return domain.charAt(0).toUpperCase() + domain.slice(1) + " domain detected. For example: '" + term + "'.";
+                }
+                for (var j = 0; j < vocabEn[domain].length; j++) {
+                    if (lowerText.includes(vocabEn[domain][j].toLowerCase())) {
+                        return domain.charAt(0).toUpperCase() + domain.slice(1) + " domain detected. For example: '" + vocabEn[domain][j] + "'.";
+                    }
                 }
             }
         }
-
-        // “nasıl”, “neden” gibi soru yönlendirici kelimeler
-        if (lowerText.includes("nasıl") || lowerText.includes("neden") || lowerText.includes("ne")) {
-able la la
+        if (lowerText.includes("how") || lowerText.includes("why") || lowerText.includes("what")) {
+            return language === 'tr' ? "Bu soruyu daha detaylı inceleyelim. Adım adım nasıl ilerleyebileceğimizi tartışabiliriz." : "Let's examine this question in detail. We can discuss step by step.";
         }
         return response;
     }
 
-    // Chat mesajlarını ekle
     function addMessage(text, sender) {
         var chatMessages = document.getElementById('chatMessages');
         var messageElem = document.createElement('div');
@@ -299,7 +383,6 @@ able la la
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Kullanıcı girişi al ve yanıt oluştur
     document.getElementById('sendBtn').addEventListener('click', function() {
         var userInput = document.getElementById('userInput');
         var userText = userInput.value.trim();
@@ -312,20 +395,15 @@ able la la
         }, 500);
     });
 
-    // Enter tuşu ile gönderme
     document.getElementById('userInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('sendBtn').click();
-        }
+        if (e.key === 'Enter') document.getElementById('sendBtn').click();
     });
 
-    // İlk selamlama mesajı
     window.onload = function() {
-        var welcomeMessage = "UNDCTP'ye hoş geldiniz! Dilediğiniz konuda soru sorabilirsiniz.";
-        addMessage(welcomeMessage, 'bot');
+        updatePlaceholder();
+        var welcome = responses[language].welcome;
+        addMessage(welcome, 'bot');
     };
-    
 </script>
-
 </body>
 </html>
