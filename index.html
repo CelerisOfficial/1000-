@@ -33,7 +33,7 @@
     #userCount {
       color: green;
     }
-    #successMessage, #writeButton {
+    #successMessage, #writeButton, #nameInputArea {
       margin-top: 20px;
       display: none;
     }
@@ -68,6 +68,12 @@
     </div>
   </div>
 
+  <!-- İsim Giriş Alanı -->
+  <div id="nameInputArea">
+    <input type="text" id="customName" placeholder="Adını yaz" style="padding:8px; font-size:16px;">
+    <button onclick="submitCustomName()" style="padding:8px 16px; font-size:16px;">Kaydet</button>
+  </div>
+
   <!-- Başarı Mesajı ve Buton -->
   <div id="successMessage">✅ Kayıt başarılı!</div>
   <button id="writeButton">Yaz</button>
@@ -86,30 +92,9 @@
   </table>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxF7MhqAVfPyuYaDKWqfQ9Y4Dhf3WMJawLrMtU72E1RGl-ekgP1XpSXJ50Unj_9OSObgw/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxF7MhqAVfPyuYaDKWqfQ9Y4Dhf3WMJawLrMtU72E1RGl-ekgP1XpSXJ50Unj_9OSObgw/exec"; // Kendi URL'inle değiştir
+    let currentUser = null;
     let allUsers = [];
-
-    async function saveUserToSheet(user) {
-      const alreadyExists = allUsers.some(u => u.sub === user.sub);
-      if (alreadyExists) {
-        showSuccessUI();
-        return;
-      }
-
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(user)
-      });
-
-      const result = await res.json();
-      if (result.success) {
-        fetchUsersFromSheet();
-        showSuccessUI();
-      }
-    }
 
     async function fetchUsersFromSheet() {
       const res = await fetch(API_URL);
@@ -121,7 +106,6 @@
     function updateUsersTable(users) {
       const table = document.getElementById("userTable");
       table.innerHTML = "";
-
       users.forEach((user, index) => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -131,7 +115,6 @@
         `;
         table.appendChild(row);
       });
-
       document.getElementById("userCount").innerText = `${users.length}/1000`;
     }
 
@@ -139,14 +122,40 @@
       const userInfo = jwt_decode(response.credential);
       const user = {
         sub: userInfo.sub,
-        name: userInfo.name,
+        name: "", // Daha sonra inputtan alınacak
         email: userInfo.email
       };
 
-      // Giriş başarılıysa Google giriş kısmını gizle
+      currentUser = user;
       document.getElementById("googleSignInArea").style.display = "none";
+      document.getElementById("nameInputArea").style.display = "block";
+    }
 
-      saveUserToSheet(user);
+    function submitCustomName() {
+      const name = document.getElementById("customName").value.trim();
+      if (!name) return alert("İsim boş olamaz.");
+      currentUser.name = name;
+
+      const alreadyExists = allUsers.some(u => u.sub === currentUser.sub);
+      if (alreadyExists) {
+        showSuccessUI();
+        return;
+      }
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(currentUser)
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          showSuccessUI();
+          fetchUsersFromSheet();
+        }
+      });
+
+      document.getElementById("nameInputArea").style.display = "none";
     }
 
     function showSuccessUI() {
@@ -154,9 +163,7 @@
       document.getElementById("writeButton").style.display = "inline-block";
     }
 
-    window.onload = () => {
-      fetchUsersFromSheet();
-    };
+    window.onload = fetchUsersFromSheet;
   </script>
 </body>
 </html>
