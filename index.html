@@ -3,70 +3,138 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>UNDCPT Chatbot</title>
+<title>UNDCPT - Gelişmiş Chatbot</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+  * {
+    box-sizing: border-box;
+  }
   body {
-    font-family: Arial, sans-serif;
-    background: #121212;
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #1e2a78, #0f141e);
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     color: #eee;
+  }
+  #container {
+    width: 400px;
+    height: 600px;
+    background: #12172f;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.7);
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
+    overflow: hidden;
+  }
+  #header {
+    padding: 20px;
+    background: #152445;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    border-bottom: 2px solid #2f3a66;
+    user-select: none;
   }
   #chat {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    background: #1f1f1f;
-    border-bottom: 2px solid #333;
+    scroll-behavior: smooth;
+    background: #1c294b;
   }
   .message {
+    max-width: 75%;
+    padding: 12px 18px;
     margin-bottom: 15px;
+    border-radius: 20px;
+    line-height: 1.3;
+    word-wrap: break-word;
+    font-size: 15px;
+    position: relative;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
   }
   .user {
-    color: #4caf50;
-    font-weight: bold;
+    background: #4caf50;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
   }
   .bot {
-    color: #2196f3;
-    font-weight: bold;
+    background: #2979ff;
+    color: white;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+  }
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
   }
   #inputArea {
     display: flex;
-    padding: 10px;
-    background: #222;
+    padding: 15px;
+    background: #152445;
+    border-top: 2px solid #2f3a66;
   }
   #userInput {
     flex: 1;
-    padding: 10px;
+    padding: 14px 20px;
     font-size: 16px;
+    border-radius: 25px;
     border: none;
-    border-radius: 5px;
+    outline: none;
+    background: #26386f;
+    color: #eee;
+    transition: background 0.3s ease;
+  }
+  #userInput::placeholder {
+    color: #aab2ce;
+  }
+  #userInput:focus {
+    background: #2a3c8f;
   }
   #sendBtn {
-    margin-left: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
-    background: #2196f3;
+    background: #4caf50;
     border: none;
     color: white;
-    border-radius: 5px;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 0 25px;
+    margin-left: 12px;
+    border-radius: 25px;
     cursor: pointer;
+    transition: background 0.3s ease;
   }
   #sendBtn:hover {
-    background: #1976d2;
+    background: #43a047;
+  }
+  /* Scrollbar */
+  #chat::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat::-webkit-scrollbar-track {
+    background: #1c294b;
+  }
+  #chat::-webkit-scrollbar-thumb {
+    background: #4caf50;
+    border-radius: 20px;
   }
 </style>
 </head>
 <body>
 
-<div id="chat"></div>
-
-<div id="inputArea">
-  <input type="text" id="userInput" placeholder="Bir şey yaz..." autofocus />
-  <button id="sendBtn">Gönder</button>
+<div id="container">
+  <div id="header">UNDCPT - Yapay Zeka Asistanın 🤖</div>
+  <div id="chat"></div>
+  <div id="inputArea">
+    <input type="text" id="userInput" placeholder="Bir şeyler yaz, knk..." autocomplete="off" />
+    <button id="sendBtn">Gönder</button>
+  </div>
 </div>
 
 <script>
@@ -74,42 +142,110 @@
   const userInput = document.getElementById('userInput');
   const sendBtn = document.getElementById('sendBtn');
 
-  // Basit cevaplar sözlüğü
-  const answers = {
-    "merhaba": "Selam knk, nasıl yardımcı olabilirim?",
-    "nasılsın": "Ben hep iyiyim, sen nasılsın?",
-    "sen kimsin": "Ben UNDCPT, senin yapay zeka asistanın!",
-    "ne yapıyorsun": "Sana yardım etmek için buradayım!",
-    "teşekkürler": "Eyvallah, her zaman!",
-    "görüşürüz": "Sonra görüşürüz knk!",
-  };
+  // Daha gelişmiş cevap veri tabanı
+  const responses = [
+    {
+      keywords: ["merhaba", "selam", "hey", "hello"],
+      answers: [
+        "Selam knk, n'aber?",
+        "Hey! Sana nasıl yardımcı olabilirim?",
+        "Selam dostum, naber?"
+      ]
+    },
+    {
+      keywords: ["nasılsın", "nasilsin", "nasılsın?", "napıyorsun", "napiyon"],
+      answers: [
+        "Ben hep iyiyim, sen nasılsın?",
+        "İyiyim knk, sen nasılsın?",
+        "Gayet iyiyim, sen ne yapıyorsun?"
+      ]
+    },
+    {
+      keywords: ["sen kimsin", "kim o", "kim bu", "adın ne"],
+      answers: [
+        "Ben UNDCPT, senin yapay zeka asistanın!",
+        "UNDCPT burda knk, sana yardımcı olmak için!",
+        "Yapay zeka dostun UNDCPT!"
+      ]
+    },
+    {
+      keywords: ["ne yapıyorsun", "ne yapıyorsun?"],
+      answers: [
+        "Sana yardım etmek için buradayım!",
+        "Buradayım, sorularını bekliyorum!",
+        "Seninle sohbet ediyorum, knk."
+      ]
+    },
+    {
+      keywords: ["teşekkürler", "tesekkür", "eyvallah", "sağol", "sağolasın"],
+      answers: [
+        "Eyvallah knk, her zaman!",
+        "Rica ederim dostum!",
+        "Ne demek, hep buradayım!"
+      ]
+    },
+    {
+      keywords: ["görüşürüz", "bye", "hoşça kal", "bye bye", "gule gule"],
+      answers: [
+        "Görüşürüz knk, kendine iyi bak!",
+        "Sonra konuşuruz, kolay gelsin!",
+        "Hoşça kal dostum!"
+      ]
+    },
+    {
+      keywords: ["nasıl yardım edersin", "yardım", "yardim", "ne yaparsın"],
+      answers: [
+        "Sorularını cevaplar, fikirler verir, kodlarda yardımcı olurum!",
+        "Oyunlar, siteler, kodlama her şeyde yanındayım!",
+        "Kod yazarım, sohbet ederim, dert dinlerim :)"
+      ]
+    }
+  ];
 
   function addMessage(text, sender) {
     const div = document.createElement('div');
-    div.classList.add('message');
-    div.classList.add(sender);
+    div.classList.add('message', sender);
     div.textContent = text;
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
   }
 
-  function botResponse(input) {
+  function findResponse(input) {
     input = input.toLowerCase();
-    for (const key in answers) {
-      if (input.includes(key)) {
-        return answers[key];
+    for (const entry of responses) {
+      for (const key of entry.keywords) {
+        if (input.includes(key)) {
+          // Rastgele cevap seç
+          const ans = entry.answers[Math.floor(Math.random() * entry.answers.length)];
+          return ans;
+        }
       }
     }
-    return "Hmm, bunu anlayamadım knk, başka bir şey söyle?";
+    // Anlamazsa değişik cevaplar verelim
+    const fallback = [
+      "Anlamadım knk, başka bir şey dene.",
+      "Hmm, onu çözemedim.",
+      "Bir daha söyler misin?",
+      "Bu konuda bilgim yok ama öğreniyorum.",
+      "Farklı bir şey sor, olur mu?"
+    ];
+    return fallback[Math.floor(Math.random() * fallback.length)];
   }
 
   function sendMessage() {
     const message = userInput.value.trim();
     if (!message) return;
+
     addMessage("Sen: " + message, 'user');
-    const response = botResponse(message);
-    setTimeout(() => addMessage("UNDCPT: " + response, 'bot'), 500);
+
+    // Bot cevap biraz gecikmeli olsun daha gerçekçi
+    setTimeout(() => {
+      const response = findResponse(message);
+      addMessage("UNDCPT: " + response, 'bot');
+    }, 700);
+
     userInput.value = '';
+    userInput.focus();
   }
 
   sendBtn.addEventListener('click', sendMessage);
