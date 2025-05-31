@@ -51,19 +51,21 @@
 <body>
 
   <!-- Google Giriş -->
-  <div id="g_id_onload"
-    data-client_id="537474382538-bp4g5n0ute985jq2qs2lbestg82cgid5.apps.googleusercontent.com"
-    data-callback="handleCredentialResponse"
-    data-auto_prompt="true">
-  </div>
+  <div id="googleSignInArea">
+    <div id="g_id_onload"
+      data-client_id="537474382538-bp4g5n0ute985jq2qs2lbestg82cgid5.apps.googleusercontent.com"
+      data-callback="handleCredentialResponse"
+      data-auto_prompt="true">
+    </div>
 
-  <div class="g_id_signin"
-    data-type="standard"
-    data-size="large"
-    data-theme="outline"
-    data-text="sign_in_with"
-    data-shape="rectangular"
-    data-logo_alignment="left">
+    <div class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="outline"
+      data-text="sign_in_with"
+      data-shape="rectangular"
+      data-logo_alignment="left">
+    </div>
   </div>
 
   <!-- Başarı Mesajı ve Buton -->
@@ -85,7 +87,6 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxF7MhqAVfPyuYaDKWqfQ9Y4Dhf3WMJawLrMtU72E1RGl-ekgP1XpSXJ50Unj_9OSObgw/exec";
-
     let allUsers = [];
 
     async function saveUserToSheet(user) {
@@ -105,8 +106,8 @@
 
       const result = await res.json();
       if (result.success) {
-        showSuccessUI();
         fetchUsersFromSheet();
+        showSuccessUI();
       }
     }
 
@@ -141,6 +142,9 @@
         name: userInfo.name,
         email: userInfo.email
       };
+
+      // Giriş başarılıysa Google giriş kısmını gizle
+      document.getElementById("googleSignInArea").style.display = "none";
 
       saveUserToSheet(user);
     }
