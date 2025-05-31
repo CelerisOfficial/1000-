@@ -15,14 +15,16 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
+            /* Chat ekranı tüm görüntü alanını kaplar */
+            width: 100vw;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
         }
         .chat-container {
-            width: 400px;
-            height: 600px;
+            width: 90vw;
+            height: 90vh;
             background-color: #fff;
             border: 1px solid #ccc;
             border-radius: 10px;
@@ -35,13 +37,13 @@
             background-color: #4CAF50;
             color: white;
             text-align: center;
-            padding: 15px;
-            font-size: 1.2rem;
+            padding: 20px;
+            font-size: 1.5rem;
             font-weight: bold;
         }
         .chat-messages {
             flex: 1;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
         }
         .chat-input-area {
@@ -50,9 +52,10 @@
         }
         .chat-input {
             flex: 1;
-            padding: 10px;
+            padding: 15px;
             border: none;
-            font-size: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold; /* Yazı fontunu daha kalın yapıyoruz */
         }
         .chat-input:focus {
             outline: none;
@@ -61,16 +64,18 @@
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 15px 25px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
         }
         .chat-send-btn:hover {
             background-color: #45a049;
         }
         .message {
-            margin-bottom: 15px;
-            line-height: 1.4;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-weight: bold; /* Mesaj balonlarındaki yazı kalın */
         }
         .message.user {
             text-align: right;
@@ -82,19 +87,41 @@
             display: inline-block;
             background-color: #DCF8C6;
             color: #000;
-            padding: 10px;
-            border-radius: 15px;
-            max-width: 70%;
+            padding: 15px;
+            border-radius: 20px;
+            max-width: 80%;
+            font-weight: bold;
         }
         .message.bot .bubble {
             display: inline-block;
             background-color: #eee;
             color: #000;
-            padding: 10px;
-            border-radius: 15px;
-            max-width: 70%;
+            padding: 15px;
+            border-radius: 20px;
+            max-width: 80%;
+            font-weight: bold;
         }
-        /* Boşluklar ve yorum satırları ekleyerek satır sayısını artırıyoruz */
+        /* Responsive tasarım */
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 98vw;
+                height: 98vh;
+                border-radius: 0;
+            }
+            .chat-header {
+                font-size: 1.2rem;
+                padding: 15px;
+            }
+            .chat-input {
+                font-size: 1rem;
+                padding: 10px;
+            }
+            .chat-send-btn {
+                font-size: 1rem;
+                padding: 10px 20px;
+            }
+        }
+        /* Boş yorum satırları ve satır sayısını artırmak için */
     </style>
 </head>
 <body>
@@ -111,223 +138,45 @@
 </div>
 
 <script>
-    // Boş satırlar ve yorumlar ekleyerek toplam satır sayısını artırıyoruz
-
-    // Gelişmiş matematik, biyoloji ve fizik kelime dağarcığı
-    var mathVocabulary = [
-        "Topoloji",
-        "Diferansiyel Denklemler",
-        "Lineer Cebir",
-        "Çok Değişkenli Analiz",
-        "Öklidyen Uzay",
-        "Fourier Analizi",
-        "Polinom Teorisi",
-        "Diziler ve Seriler",
-        "Kombinatorik",
-        "Olasılık Teorisi",
-        "İstatistiksel İnferans",
-        "Varyans ve Kovaryans",
-        "Matris Teorisi",
-        "Determinant",
-        "Eigen Değerler",
-        "Norm ve İç Çarpım",
-        "Çok Boyutlu Optimizasyon",
-        "Dalgalet Teorisi",
-        "Laplace Dönüşümü",
-        "Glider Dalgaları",
-        "Nöral Ağ Matematiği",
-        "Kuantum Geometri",
-        "Fourier Dönüşümü",
-        "Hilbert Uzayı",
-        "Fonksiyonel Analiz",
-        "Riemann Teorisi",
-        "Analitik Sayılar Kuramı",
-        "Sayı Teorisi",
-        "Graf Teorisi",
-        "Karmaşıklık Kuramı",
-        "Paradokslar ve Teoremalar",
-        "Kârtezyen Çarpım",
-        "Koordinat Dönüşümleri",
-        "Evrensel Kaplamalar",
-        "Sonsuz Küme Teorisi",
-        "Karakteristik Fonksiyonlar",
-        "Polinom Kökleri",
-        "Bessel Fonksiyonları",
-        "Laguerre Polinomları",
-        "Hermite Polinomları",
-        "Serbest Kalma Fonksiyonları",
-        "Dişli Dalgalar",
-        "Çeşitli Diferansiyel Operatörler",
-        "Numerik Metotlar",
-        "İntegral Yaklaşımları",
-        "Kalıntı Teoremi",
-        "Cauchy Deneyimi",
-        "Lagrange Çarpanları",
-        "Euler-Lagrange Denklemleri"
+    // Örnek genel sohbet yanıtları (ChatGPT benzeri deneyim için genişletilebilir)
+    var generalResponses = [
+        "Anladım. Daha fazla detay verebilir misiniz?",
+        "Bu ilginç bir konu! Başka ne söyleyebilirim?",
+        "Maalesef bu konuda geniş bir bilgim yok, ama başka konuda yardımcı olabilirim.",
+        "Tabii, başka bir sorunuz var mı?",
+        "Derinlemesine bir analiz yapmak ister misiniz?"
     ];
 
-    var biologyVocabulary = [
-        "Deoksiribonükleik Asit (DNA)",
-        "Ribonükleik Asit (RNA)",
-        "Genomik Sekanslama",
-        "Protein Sentezi",
-        "Hücre Bölünmesi",
-        "Mitoz ve Mayoz",
-        "Kromozom Yapısı",
-        "Epigenetik Modifikasyon",
-        "Transkripsiyon Faktörleri",
-        "Genetik Kod",
-        "Mutasyonlar",
-        "Genetik Rekombinasyon",
-        "Protein Katingeri",
-        "Enzim Kinetiği",
-        "Homolog Rekombinasyon",
-        "Hücre Sinyalizasyonu",
-        "Hücresel Respiration",
-        "Glikoliz",
-        "Krebs Döngüsü",
-        "ATP Sentezi",
-        "Fotosentez Reaksiyonları",
-        "Kloroplast Yapısı",
-        "Mitokondriyal DNA",
-        "Biyoinformatik",
-        "Fosfolipid Çift Katman",
-        "Hücre Zarı Transport Mekanizmaları",
-        "Aktin ve Miyozin Aktin Filamentleri",
-        "Hücre İskeleti",
-        "Nörotransmitter Salınımı",
-        "Sinaps Yapısı",
-        "Endoplazmik Retikulum",
-        "Golgi Aygıtı",
-        "Lizozom",
-        "Peroksizom",
-        "Hücre Döngüsü Düzenleyicileri",
-        "Onkogenler ve Tümör Baskılayıcı Genler",
-        "Apoptoz ve Nekroz",
-        "İmmünolojik Yanıt",
-        "Antikor Özellikleri",
-        "B Lenfositleri ve T Lenfositleri",
-        "Sitokin Sinyalizasyonu",
-        "Mikrobiyom Ekosistemleri",
-        "Ekolojik Biyoloji",
-        "Popülasyon Genetiği",
-        "Evrimsel Biyoloji Kuramları",
-        "Fosil Kayıtları",
-        "Moleküler Biyoloji Yöntemleri"
-    ];
-
-    var physicsVocabulary = [
-        "Kuantum Mekaniği",
-        "Görelilik Kuramı",
-        "Özel Görelilik",
-        "Genel Görelilik",
-        "Kara Delik Termodinamiği",
-        "Parçacık Fiziği",
-        "Standart Model",
-        "Bozon ve Fermion",
-        "Higgs Bozonu",
-        "Nükleer Fizik",
-        "Radyasyon Fiziği",
-        "Termodinamik Yasaları",
-        "Entropi ve Enerji Değişimi",
-        "Isı Kapasitesi",
-        "Dalga Parçacık İkiliği",
-        "Schrödinger Denklemi",
-        "Heisenberg Belirsizlik İlkesi",
-        "Elektrik ve Manyetizma",
-        "Maxwell Denklemleri",
-        "Elektromanyetik Spektrum",
-        "Optik ve Kırınım",
-        "Lazer Fizikleri",
-        "Katı Hal Fiziği",
-        "Yarı İletken Diyagramları",
-        "Süperiletkenlik",
-        "Spintronik",
-        "Plazma Fiziği",
-        "Kuantum Alan Teorileri",
-        "Karanlık Madde",
-        "Karanlık Enerji",
-        "Kozmoloji ve Evren Modeli",
-        "Büyük Patlama Kuramı",
-        "Astronomi ve Galaksi Dinamikleri",
-        "Güneş Sisteminin İncelenmesi",
-        "Astrofiziksel Matematik",
-        "Rölativistik Partiküller",
-        "Nötron Yıldızları",
-        "Süpernova Patlamaları",
-        "Kozmik Işınlar",
-        "Plank Uzay Zamanı",
-        "Kuantum Elektrodinamiği",
-        "Kuantum Kromodinamiği",
-        "Feynman Diyagramları",
-        "Lagrange Fonksiyonu",
-        "Hamiltonyen Dinamikler",
-        "Klasik Mekanik",
-        "Newton Yasaları",
-        "Kuvvet ve Hareket Analizi"
-    ];
-
-    // Boş yorum satırları
-    // ---------------------------------------------
-    // ---------------------------------------------
-    // ---------------------------------------------
-    // ---------------------------------------------
-    // ---------------------------------------------
-    // ---------------------------------------------
-    // ---------------------------------------------
-    // ---------------------------------------------
-    // ---------------------------------------------
-    // ---------------------------------------------
+    // Domain kelime dağarcığı (daha fazla konu eklenebilir)
+    var domainVocabulary = {
+        "matematik": ["Topoloji", "Diferansiyel Denklemler", "Lineer Cebir", "Fourier Analizi", "Kombinatorik"],
+        "biyoloji": ["DNA", "RNA", "Hücre Bölünmesi", "Protein Sentezi", "Evrelimi Biyoloji"],
+        "fizik": ["Kuantum Mekaniği", "Görelilik", "Termodinamik", "Elektromanyetizma", "Optik"],
+        // Ek domainlar örnek: yazılım, tarih, edebiyat
+        "yazılım": ["Algoritma", "Veri Yapıları", "Sürekli Entegrasyon", "REST API", "Makine Öğrenmesi"],
+        "tarih": ["Osmanlı İmparatorluğu", "Rönesans", "Soğuk Savaş", "Endüstri Devrimi", "İstanbul'un Fethi"],
+        "edebiyat": ["Romantizm", "Realizm", "Postmodern", "Şiir", "Roman"],
+    };
 
     // Kullanıcının sorusunu al ve yanıt oluştur
     function generateResponse(userText) {
         var lowerText = userText.toLowerCase();
-        var response = "Üzgünüm, bu konuda şu an yeterli bilgiye sahip değilim. Başka bir soru sorabilirsin!";
-
-        // Matematik ile ilgili anahtar kelimeler
-        var mathKeywords = ["matematik", "denklem", "teorem", "integral", "türev", "analiz", "cauchy", "fourier"];  
-        // Biyoloji ile ilgili anahtar kelimeler
-        var biologyKeywords = ["biyoloji", "dna", "rna", "hücre", "protein", "evrim", "genetik"];
-        // Fizik ile ilgili anahtar kelimeler
-        var physicsKeywords = ["fizik", "kuantum", "görelilik", "enerji", "ısındırma", "dalga", "ışık"];
-
-        // Anahtar kelime tespiti ve yanıt verme
-        for (var i = 0; i < mathKeywords.length; i++) {
-            if (lowerText.includes(mathKeywords[i])) {
-                response = "Matematiksel bir konseptten bahsettiniz. Örneğin, '" + mathVocabulary[Math.floor(Math.random() * mathVocabulary.length)] + "' gibi kavramlar incelenebilir. Bu kavramlar, diferansiyel denklemlerden çok değişkenli analize kadar çeşitli alt dallarda kullanılır.";
-                return response;
-            }
-        }
-        for (var j = 0; j < biologyKeywords.length; j++) {
-            if (lowerText.includes(biologyKeywords[j])) {
-                response = "Biyolojik süreçlerle ilgilendiğiniz gözüküyor. Örneğin, '" + biologyVocabulary[Math.floor(Math.random() * biologyVocabulary.length)] + "' gibi bir terimi araştırmak ilginizi çekebilir. Bu terim, hücresel biyolojiden ekolojik biyolojiye kadar geniş bir alanda önem taşır.";
-                return response;
-            }
-        }
-        for (var k = 0; k < physicsKeywords.length; k++) {
-            if (lowerText.includes(physicsKeywords[k])) {
-                response = "Fizikle ilgili bir soru var gibi. Örneğin, '" + physicsVocabulary[Math.floor(Math.random() * physicsVocabulary.length)] + "' kavramını düşünebilirsiniz. Bu kavram, kuantum mekaniğinden termodinamiğe kadar çeşitli fiziksel teorilerde kritik rol oynar.";
+        var response = "Bot: " + generalResponses[Math.floor(Math.random() * generalResponses.length)];
+        
+        // Domain eşleştirme
+        for (var domain in domainVocabulary) {
+            if (lowerText.includes(domain)) {
+                var terms = domainVocabulary[domain];
+                var term = terms[Math.floor(Math.random() * terms.length)];
+                response = domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + term + "'. Bu konuda daha ayrıntılı bilgi için araştırabilirsiniz.";
                 return response;
             }
         }
 
-        // Genel selamlama
-        var greetings = ["merhaba", "selam", "günaydın", "iyi akşamlar", "nasılsın", "yo"];
-        for (var g = 0; g < greetings.length; g++) {
-            if (lowerText.includes(greetings[g])) {
-                response = "Merhaba! Nasıl yardımcı olabilirim? Matematik, biyoloji, fizik veya diğer konular hakkında sorular sorabilirsin.";
-                return response;
-            }
+        // Derinlemesine veya genel soru gibi algılamalar (anahtar kelimelerle)
+        if (lowerText.includes("nasıl") || lowerText.includes("neden") || lowerText.includes("ne")) {
+            return "Bu konuda düşündüğünüz soruyu daha spesifik hale getirebilir misiniz? Örneğin adım adım nasıl çözülebileceğini tartışabiliriz.";
         }
-
-        // Default yanıt
-        var defaultResponses = [
-            "İlginç bir soru! Daha spesifik bir konu belirtir misiniz?",
-            "Bu konuda biraz daha ayrıntı verebilir misiniz?",
-            "Belki matematik, biyoloji veya fizik ile ilgili bir soru sorabilirsiniz.",
-            "Ne hakkında konuşmak istersiniz?"
-        ];
-        response = defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
         return response;
     }
 
@@ -366,11 +215,11 @@
 
     // İlk selamlama mesajı
     window.onload = function() {
-        var welcomeMessage = "UNDCTP'ye hoş geldiniz! Matematik, biyoloji veya fizik ile ilgili bir soru sorabilirsiniz.";
+        var welcomeMessage = "UNDCTP'ye hoş geldiniz! Herhangi bir konuda soru sorabilirsiniz. Konu başlığı belirtmek, daha spesifik yanıt almaya yardımcı olur.";
         addMessage(welcomeMessage, 'bot');
     };
 
-    // Ekstra boş satırlar ve yorumlar: satır sayısını artırmak için
+    // Ekstra boş satırlar ve yorumlar ekleyerek satır sayısını artırma
     // 1
     // 2
     // 3
