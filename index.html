@@ -151,16 +151,25 @@
     // Bellek: kullanıcı adını saklamak için
     var userName = "";
 
-    // Geliştirilmiş genel sohbet yanıtları
+    // Genişletilmiş genel sohbet yanıtları (farklı durumlar için daha fazla seçenek)
     var generalResponses = [
-        "Tabii, nasıl yardımcı olabilirim?", 
-        "Bu konuda detaylıa girebilirim, ne öğrenmek istiyorsunuz?", 
-        "Elimdeki verilerle yardımcı olmaya çalışırım, sorunuz nedir?",
-        "Detay verirseniz daha iyi yanıtlayabilirim.",
-        "Başka bir konu hakkında da konuşabiliriz.",
+        "Elbette, nasıl yardımcı olabilirim?",
+        "Harika bir soru, detaylandırabilir misiniz?",
+        "Bu konuda geniş bir bakış açısı sunabilirim, sormak istediğiniz spesifik bir şey var mı?",
+        "Dilediğiniz başka bir konuda da konuşabiliriz.",
+        "Bunu anladım, üzerimdeki bilgiyi paylaşıyorum..."
     ];
 
-    // Genişletilmiş domain kelime dağarcığı
+    // Selamlaşma yanıtları ("selam", "merhaba" gibi)
+    var greetingResponses = [
+        "Merhaba! Nasılsın?",
+        "Selam! Sana nasıl yardımcı olabilirim?",
+        "Hoş geldin! Bugün neler yapmak istersin?",
+        "Merhaba dostum! Konuşmak istediğin bir konu var mı?",
+        "Selam! Hadi bir şeyler keşfedelim."
+    ];
+
+    // Kelime dağarcığı (domain-specific + genel ifadeler)
     var domainVocabulary = {
         "matematik": [
             "Topoloji", "Diferansiyel Denklemler", "Lineer Cebir", "Çok Değişkenli Analiz", "Öklidyen Uzay",
@@ -226,6 +235,15 @@
     // Kullanıcının sorusunu al ve yanıt oluştur
     function generateResponse(userText) {
         var lowerText = userText.toLowerCase();
+
+        // Selamlaşma kontrolü
+        var greetings = ["merhaba", "selam", "sa", "hello", "hi", "günaydın", "iyi akşamlar"];
+        for (var g = 0; g < greetings.length; g++) {
+            if (lowerText === greetings[g] || lowerText.includes(greetings[g] + " ") || lowerText.startsWith(greetings[g] + ".") || lowerText.startsWith(greetings[g] + "!")) {
+                return greetingResponses[Math.floor(Math.random() * greetingResponses.length)];
+            }
+        }
+
         var response = generalResponses[Math.floor(Math.random() * generalResponses.length)];
 
         // Kullanıcı adını kaydetme: "benim adım..."
@@ -273,13 +291,11 @@
 
         // Domain eşleştirme ve kelime önerme (term bazlı kontrol)
         for (var domain in domainVocabulary) {
-            // Domain anahtar kelimesi ile kontrol
             if (lowerText.includes(domain)) {
                 var terms = domainVocabulary[domain];
                 var term = terms[Math.floor(Math.random() * terms.length)];
                 return domain.charAt(0).toUpperCase() + domain.slice(1) + " alanında bahsettiniz. Örneğin: '" + term + "'. Bu konuda daha ayrıntılı bilgi edinebilirsiniz.";
             }
-            // Spesifik terimler listede varsa kontrol
             var termsList = domainVocabulary[domain];
             for (var j = 0; j < termsList.length; j++) {
                 var lowerTerm = termsList[j].toLowerCase();
